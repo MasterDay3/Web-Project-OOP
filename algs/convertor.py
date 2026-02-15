@@ -32,17 +32,53 @@ class ArabToRoman:
 
         return roman_number
 
-# class RomanToArab:
-#     '''
-#     Клас конвертор арабські -> римські
-#     '''
+class RomanToArab:
+    '''
+    Клас конвертор арабські -> римські
+    '''
+    arab_numbers = [
+        (1000, "M"), (900, "CM"), (500, "D"), (400, "CD"),
+        (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+        (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")
+    ]
+    letters = ['M','D','C','L','X','V','I']
 
+    def __init__(self, roman_number):
+        self.roman_number = roman_number
 
-# if __name__ == '__main__':
-#     assert ArabToRoman("1").convert_to_roman() == "I"
-#     assert ArabToRoman("4").convert_to_roman() == "IV"
-#     assert ArabToRoman("9").convert_to_roman() == "IX"
-#     assert ArabToRoman("58").convert_to_roman() == "LVIII"
-#     assert ArabToRoman("1994").convert_to_roman() == "MCMXCIV"
+    def convert_to_arab(self):
+        '''
+        Функція, яка конвертує римські числа в арабські
+        '''
+        roman_number = self.roman_number
+        if not roman_number.isalpha() or not roman_number.isascii():
+            return 'Не правильний ввід, введіть число латинецею'
+        for sym in roman_number:
+            if sym.upper() not in self.letters:
+                return 'Не правильний ввід'
 
-#     print("Всі тести пройшли ✅")
+        arab_number = 0
+
+        for i, char in enumerate(roman_number):
+            current_value = 0
+            for value, sym in self.arab_numbers:
+                if sym == char:
+                    current_value = value
+                    break
+
+            next_value = 0
+            if i + 1 < len(roman_number):
+                next_sym = roman_number[i + 1]
+                for value, sym in self.arab_numbers:
+                    if sym == next_sym:
+                        next_value = value
+                        break
+
+# Менший перед більшим -> віднімання
+# Більший або рівний наступному -> додавання
+            if current_value < next_value:
+                arab_number -= current_value
+            else:
+                arab_number += current_value
+
+        return str(arab_number)
