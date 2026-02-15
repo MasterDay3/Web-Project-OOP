@@ -32,7 +32,6 @@ class ArabToRoman:
 
         return roman_number
 
-print(ArabToRoman('3999').convert_to_roman())
 # class RomanToArab:
 #     '''
 #     Клас конвертор арабські -> римські
