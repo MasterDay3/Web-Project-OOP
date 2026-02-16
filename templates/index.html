@@ -30,14 +30,15 @@
         <div class="convert-box">
             <div class="convert-header">
                 <span>Roman</span>
-                <span class="arrows">⇄</span>
+                <!-- <span class="arrows">⇄</span>-->
+                <span class="arrows" id="swap">⇄</span>
                 <span>Arabic</span>
             </div>
 
             <div class="convert-body">
-                <div class="left">MDCCXIV</div>
+                <input id="leftInput" class="left" placeholder="MDCCXIV">
                 <div class="divider"></div>
-                <div class="right">1714</div>
+                <input id="rightInput" class="right" placeholder="1714">
             </div>
         </div>
     </section>
@@ -77,7 +78,7 @@
             solve every day tasks, earn achievements..
         </p>
     </section>
-
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 
 </html>
