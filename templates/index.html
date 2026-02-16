@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Numerics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <div class="circle"></div>
+            <span>Numerics</span>
+        </div>
+
+        <nav class="nav-links">
+            <span class="globe">🌐</span>
+            <a href="#" class="active">Convertor</a>
+            <a href="#">Calculator</a>
+            <button class="signup">Sign up</button>
+            <div class="burger"></div>
+        </nav>
+    </header>
+
+    <section class="converter">
+        <h1>Roman Numeral Converter</h1>
+
+        <div class="convert-box">
+            <div class="convert-header">
+                <span>Roman</span>
+                <!-- <span class="arrows">⇄</span>-->
+                <span class="arrows" id="swap">⇄</span>
+                <span>Arabic</span>
+            </div>
+
+            <div class="convert-body">
+                <input id="leftInput" class="left" placeholder="MDCCXIV">
+                <div class="divider"></div>
+                <input id="rightInput" class="right" placeholder="1714">
+            </div>
+        </div>
+    </section>
+
+    <section class="explanation">
+        <div class="explanation-box">
+            <h2>MDCCXIV</h2>
+
+            <div class="breakdown">
+                <div>
+                    <p>M</p>
+                    <span>1000</span>
+                </div>
+                <div>
+                    <p>DCC</p>
+                    <span>700</span>
+                </div>
+                <div>
+                    <p>X</p>
+                    <span>10</span>
+                </div>
+                <div>
+                    <p>IV</p>
+                    <span>4</span>
+                </div>
+            </div>
+
+            <h3>1714</h3>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Start learning right now!</h2>
+        <p>
+            Register to access multiple features. Learn how numerals from across
+            the world work, master solving problems using different numerals,
+            solve every day tasks, earn achievements..
+        </p>
+    </section>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>
