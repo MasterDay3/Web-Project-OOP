@@ -17,7 +17,13 @@ class Convertor:
         (1000000, '𓀼'), (100000, '𓆐'), (10000, '𓂭'),
         (1000, '𓆼'), (100, '𓍢'), (10, '𓎆'), (1, '𓏽')
     ]
-    hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼','𓍢', '𓎆', '𓏽']
+    egypt_hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼', '𓍢', '𓎆', '𓏽']
+
+    thai_numbers = [
+        ('0', '๐'), ('1', '๑'), ('2', '๒'), ('3', '๓'),('4', '๔'),
+        ('5', '๕'), ('6', '๖'), ('7', '๗'), ('8', '๘'), ('9', '๙')
+    ]
+    thai_hieroglyphs = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙', '-', '.', ',']
 
     def __init__(self, value):
         self.value = value
@@ -125,6 +131,8 @@ class Convertor:
         return str(arab_number)
 
     def convert_to_egyptian(self):
+        if not self.value.isdigit():
+            return 'Invaid input'
         number = int(self.value)
         if number <= 0 or number >= 10000000:
             return 'Number must be in range from 1 to 9999999'
@@ -141,11 +149,65 @@ class Convertor:
         number = self.value
         result = 0
         for char in number:
-            if char not in self.hieroglyphs:
+            if char not in self.egypt_hieroglyphs:
                 return 'Invalid input, no such number in egyptian numeral system'
         for val, sym in self.egyptian_numbers:
             result += number.count(sym) * val
         return result
+
+    def convert_to_thai(self):
+        number = self.value.strip()
+
+        if not number:
+            return 'Invalid input'
+        if number.count('-') > 1 or (number.count('-') == 1 and number[0] != '-'):
+            return 'Invalid input'
+        if number.count('.') + number.count(',') > 1:
+            return 'Invalid input'
+        if '.' in number:
+            parts = number.split('.')
+            if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
+                return 'Invalid input'
+        elif ',' in number:
+            parts = number.split(',')
+            if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
+                return 'Invalid input'
+        else:
+            if not number.replace('-', '').isdigit():
+                return 'Invalid input'
+
+        for arabic, thai in self.thai_numbers:
+            number = number.replace(arabic, thai)
+
+        return number
+
+    def convert_thai_to_arab(self):
+        number = self.value.strip()
+        for sym in number:
+            if sym not in self.thai_hieroglyphs:
+                return 'Invalid input'
+
+        for arabic, thai in self.thai_numbers:
+            number = number.replace(thai, arabic)
+
+        if number.count('-') > 1 or (number.count('-') == 1 and number[0] != '-'):
+            return 'Invalid input'
+        if number.count('.') + number.count(',') > 1:
+            return 'Invalid input'
+
+        if '.' in number:
+            parts = number.split('.')
+            if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
+                return 'Invalid input'
+        elif ',' in number:
+            parts = number.split(',')
+            if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
+                return 'Invalid input'
+        else:
+            if not number.replace('-', '').isdigit():
+                return 'Invalid input'
+
+        return number
 
 if __name__ == '__main__':
     print("-" * 30)
@@ -219,5 +281,52 @@ if __name__ == '__main__':
     assert int(test_val) == arabic_res
 
     print("Egyptian tests done! 𓆼 ✅")
+    print("-" * 30)
+    # 1. Арабські -> Тайські
+    assert Convertor("1").convert_to_thai() == "๑"
+    assert Convertor("10").convert_to_thai() == "๑๐"
+    assert Convertor("2024").convert_to_thai() == "๒๐๒๔"
+
+    # Від’ємні числа
+    assert Convertor("-123").convert_to_thai() == "-๑๒๓"
+
+    # Дробові числа
+    assert Convertor("12.5").convert_to_thai() == "๑๒.๕"
+    assert Convertor("12,5").convert_to_thai() == "๑๒,๕"
+
+    # Цілі числа
+    assert Convertor("34567").convert_to_thai() == "๓๔๕๖๗"
+
+    # Перевірка неправильного вводу
+    assert Convertor("12.5,6").convert_to_thai() == 'Invalid input' # два розділювачі
+    assert Convertor("--123").convert_to_thai() == 'Invalid input'    # два мінуси
+    assert Convertor("123-").convert_to_thai() == 'Invalid input'     # мінус не на початку
+    assert Convertor("12a").convert_to_thai() == 'Invalid input'     # літери
+    assert Convertor("12..5").convert_to_thai() == 'Invalid input'    # два крапки
+
+    # --- Тайські -> Арабські ---
+    assert Convertor("๑").convert_thai_to_arab() == "1"
+    assert Convertor("๑๐").convert_thai_to_arab() == "10"
+    assert Convertor("๒๐๒๔").convert_thai_to_arab() == "2024"
+    assert Convertor("๓๔๕๖๗").convert_thai_to_arab() == "34567"
+    assert Convertor("-๑๒๓").convert_thai_to_arab() == "-123"
+    assert Convertor("๑๒.๕").convert_thai_to_arab() == "12.5"
+    assert Convertor("๑๒,๕").convert_thai_to_arab() == "12,5"
+
+    # Перевірка помилок
+    assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Invalid input"  # два розділювачі
+    assert Convertor("--๑๒๓").convert_thai_to_arab() == "Invalid input"   # два мінуси
+    assert Convertor("๑๒A").convert_thai_to_arab() == "Invalid input"     # літери
+    assert Convertor("๑๒๓-").convert_thai_to_arab() == "Invalid input"    # мінус не на початку
+
+    # --- Round-trip tests ---
+    test_vals = ["34567", "-456", "12.75", "12,5"]
+
+    for val in test_vals:
+        thai_str = Convertor(val).convert_to_thai()
+        arabic_res = Convertor(thai_str).convert_thai_to_arab()
+        assert val == arabic_res
+
+    print("Thai tests done! 🇹🇭 ✅")
     print("-" * 30)
     print("All tests passed! 🚀")
