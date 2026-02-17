@@ -255,26 +255,20 @@ if __name__ == '__main__':
     assert Convertor("12").convert_to_egyptian() == "𓎆𓏽𓏽"
     assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏽𓏽"
     
-    # Перевірка меж
     error_range = 'Number must be in range from 1 to 9999999'
     assert Convertor("0").convert_to_egyptian() == error_range
     assert Convertor("10000000").convert_to_egyptian() == error_range
 
     # 2. Єгипетські -> Арабські
-    # Оскільки твій метод повертає int (result = 0), в ассертах порівнюємо з числами
     assert Convertor("𓏽").convert_egyptian_to_arab() == 1
     assert Convertor("𓎆").convert_egyptian_to_arab() == 10
     assert Convertor("𓎆𓏽𓏽").convert_egyptian_to_arab() == 12
-    
-    # Перевірка непозиційності (що єгиптянам було "похуй" на порядок)
     assert Convertor("𓏽𓎆𓏽").convert_egyptian_to_arab() == 12
     
-    # Помилка вводу
     error_invalid = 'Invalid input, no such number in egyptian numeral system'
     assert Convertor("ABC").convert_egyptian_to_arab() == error_invalid
     assert Convertor("123").convert_egyptian_to_arab() == error_invalid
 
-    # 3. Round-trip test (В обидва боки)
     test_val = "1234"
     egyptian_str = Convertor(test_val).convert_to_egyptian()
     arabic_res = Convertor(egyptian_str).convert_egyptian_to_arab()
@@ -282,27 +276,20 @@ if __name__ == '__main__':
 
     print("Egyptian tests done! 𓆼 ✅")
     print("-" * 30)
+
     # 1. Арабські -> Тайські
     assert Convertor("1").convert_to_thai() == "๑"
     assert Convertor("10").convert_to_thai() == "๑๐"
     assert Convertor("2024").convert_to_thai() == "๒๐๒๔"
-
-    # Від’ємні числа
     assert Convertor("-123").convert_to_thai() == "-๑๒๓"
-
-    # Дробові числа
     assert Convertor("12.5").convert_to_thai() == "๑๒.๕"
     assert Convertor("12,5").convert_to_thai() == "๑๒,๕"
-
-    # Цілі числа
     assert Convertor("34567").convert_to_thai() == "๓๔๕๖๗"
-
-    # Перевірка неправильного вводу
-    assert Convertor("12.5,6").convert_to_thai() == 'Invalid input' # два розділювачі
-    assert Convertor("--123").convert_to_thai() == 'Invalid input'    # два мінуси
-    assert Convertor("123-").convert_to_thai() == 'Invalid input'     # мінус не на початку
-    assert Convertor("12a").convert_to_thai() == 'Invalid input'     # літери
-    assert Convertor("12..5").convert_to_thai() == 'Invalid input'    # два крапки
+    assert Convertor("12.5,6").convert_to_thai() == 'Invalid input'
+    assert Convertor("--123").convert_to_thai() == 'Invalid input'
+    assert Convertor("123-").convert_to_thai() == 'Invalid input'
+    assert Convertor("12a").convert_to_thai() == 'Invalid input'
+    assert Convertor("12..5").convert_to_thai() == 'Invalid input'
 
     # --- Тайські -> Арабські ---
     assert Convertor("๑").convert_thai_to_arab() == "1"
@@ -312,16 +299,13 @@ if __name__ == '__main__':
     assert Convertor("-๑๒๓").convert_thai_to_arab() == "-123"
     assert Convertor("๑๒.๕").convert_thai_to_arab() == "12.5"
     assert Convertor("๑๒,๕").convert_thai_to_arab() == "12,5"
-
-    # Перевірка помилок
-    assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Invalid input"  # два розділювачі
-    assert Convertor("--๑๒๓").convert_thai_to_arab() == "Invalid input"   # два мінуси
-    assert Convertor("๑๒A").convert_thai_to_arab() == "Invalid input"     # літери
-    assert Convertor("๑๒๓-").convert_thai_to_arab() == "Invalid input"    # мінус не на початку
+    assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Invalid input"
+    assert Convertor("--๑๒๓").convert_thai_to_arab() == "Invalid input"
+    assert Convertor("๑๒A").convert_thai_to_arab() == "Invalid input"
+    assert Convertor("๑๒๓-").convert_thai_to_arab() == "Invalid input"
 
     # --- Round-trip tests ---
     test_vals = ["34567", "-456", "12.75", "12,5"]
-
     for val in test_vals:
         thai_str = Convertor(val).convert_to_thai()
         arabic_res = Convertor(thai_str).convert_thai_to_arab()
@@ -330,3 +314,4 @@ if __name__ == '__main__':
     print("Thai tests done! 🇹🇭 ✅")
     print("-" * 30)
     print("All tests passed! 🚀")
+
