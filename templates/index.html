@@ -1,83 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Numerics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Конвертор та Калькулятор чисел</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        h1 { color: #2c3e50; }
+        form { margin-bottom: 30px; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        input, select { margin: 5px; padding: 5px; }
+        .result { margin-top: 10px; font-weight: bold; color: green; }
+    </style>
 </head>
-
 <body>
+    <h1>Конвертор чисел</h1>
+    <form method="post" action="/convert">
+        <label>Введіть число: </label>
+        <input type="text" name="value" value="{{ value or '' }}" required>
+        <label>З системи: </label>
+        <select name="system_from">
+            <option value="arabic" {% if system_from=='arabic' %}selected{% endif %}>Арабська</option>
+            <option value="roman" {% if system_from=='roman' %}selected{% endif %}>Римська</option>
+            <option value="egyptian" {% if system_from=='egyptian' %}selected{% endif %}>Єгипетська</option>
+            <option value="thai" {% if system_from=='thai' %}selected{% endif %}>Тайська</option>
+        </select>
+        <label>В систему: </label>
+        <select name="system_to">
+            <option value="arabic" {% if system_to=='arabic' %}selected{% endif %}>Арабська</option>
+            <option value="roman" {% if system_to=='roman' %}selected{% endif %}>Римська</option>
+            <option value="egyptian" {% if system_to=='egyptian' %}selected{% endif %}>Єгипетська</option>
+            <option value="thai" {% if system_to=='thai' %}selected{% endif %}>Тайська</option>
+        </select>
+        <button type="submit">Конвертувати</button>
+    </form>
+    {% if result %}
+        <div class="result">Результат: {{ result }}</div>
+    {% endif %}
 
-    <header class="navbar">
-        <div class="logo">
-            <div class="circle"></div>
-            <span>Numerics</span>
-        </div>
-
-        <nav class="nav-links">
-            <span class="globe">🌐</span>
-            <a href="#" class="active">Convertor</a>
-            <a href="#">Calculator</a>
-            <button class="signup">Sign up</button>
-            <div class="burger"></div>
-        </nav>
-    </header>
-
-    <section class="converter">
-        <h1>Roman Numeral Converter</h1>
-
-        <div class="convert-box">
-            <div class="convert-header">
-                <span>Roman</span>
-                <span class="arrows">⇄</span>
-                <span>Arabic</span>
-            </div>
-
-            <div class="convert-body">
-                <div class="left">MDCCXIV</div>
-                <div class="divider"></div>
-                <div class="right">1714</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="explanation">
-        <div class="explanation-box">
-            <h2>MDCCXIV</h2>
-
-            <div class="breakdown">
-                <div>
-                    <p>M</p>
-                    <span>1000</span>
-                </div>
-                <div>
-                    <p>DCC</p>
-                    <span>700</span>
-                </div>
-                <div>
-                    <p>X</p>
-                    <span>10</span>
-                </div>
-                <div>
-                    <p>IV</p>
-                    <span>4</span>
-                </div>
-            </div>
-
-            <h3>1714</h3>
-        </div>
-    </section>
-
-    <section class="cta">
-        <h2>Start learning right now!</h2>
-        <p>
-            Register to access multiple features. Learn how numerals from across
-            the world work, master solving problems using different numerals,
-            solve every day tasks, earn achievements..
-        </p>
-    </section>
-
+    <h1>Калькулятор чисел</h1>
+    <form method="post" action="/calculate">
+        <label>Число 1: </label>
+        <input type="text" name="number1" value="{{ number1 or '' }}" required>
+        <label>Операція: </label>
+        <input type="text" name="operation" value="{{ operation or '' }}" required>
+        <label>Число 2 (якщо потрібно): </label>
+        <input type="text" name="number2" value="{{ number2 or '' }}">
+        <label>Система числення: </label>
+        <select name="system">
+            <option value="arabic" {% if system=='arabic' %}selected{% endif %}>Арабська</option>
+            <option value="roman" {% if system=='roman' %}selected{% endif %}>Римська</option>
+            <option value="egyptian" {% if system=='egyptian' %}selected{% endif %}>Єгипетська</option>
+            <option value="thai" {% if system=='thai' %}selected{% endif %}>Тайська</option>
+        </select>
+        <button type="submit">Обчислити</button>
+    </form>
+    {% if calc_result %}
+        <div class="result">Результат: {{ calc_result }}</div>
+    {% endif %}
 </body>
-
 </html>
