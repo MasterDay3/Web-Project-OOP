@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from models import db, User
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 from routes.auth_routes import auth_routes
 from numsystems import Convertor, Calculator
 
@@ -47,6 +47,7 @@ def parse_calc_expression(expr: str):
 
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
     return render_template('dashboard.html')
 

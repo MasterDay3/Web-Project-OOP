@@ -14,8 +14,13 @@
       <a href="{{ url_for('home') }}">Конвертор</a>
       <a href="{{ url_for('calculator_page') }}" class="active">Калькулятор</a>
     </nav>
-    <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+    {% if current_user.is_authenticated %}
+      <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    {% else %}
+      <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+    {% endif %}
   </header>
 
   <main class="shell calc-page">
