@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Numerix · Roman Calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="page-light">
+  <header class="nav-bar">
+    <div class="brand">
+      <span class="brand-dot"></span><span class="brand-name">Numerix</span>
+    </div>
+    <nav class="nav-links">
+      <a href="{{ url_for('home') }}">Конвертор</a>
+      <a href="{{ url_for('calculator_page') }}" class="active">Калькулятор</a>
+    </nav>
+    <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+  </header>
+
+  <main class="shell calc-page">
+    <section class="hero">
+      <p class="eyebrow">Roman numeral</p>
+      <h1>Roman Numeral Calculator</h1>
+    </section>
+
+    <section class="glass-card calc-roman-card">
+      <form method="POST" class="calc-roman-form">
+        <input id="calc-display" name="expr" class="calc-display" type="text"
+               value="{{ expr or '' }}" placeholder="Введіть вираз, напр. X+V або √X" readonly>
+        <div class="calc-result-slot">
+          {% if calc_result %}= {{ calc_result }}{% elif calc_error %}{{ calc_error }}{% endif %}
+        </div>
+        <div class="calc-pad" id="calc-pad"></div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const display = document.getElementById('calc-display');
+    const pad = document.getElementById('calc-pad');
+    const buttons = [
+      ['√','a!','(',')','%','AC','÷'],
+      ['X','C','M','×','^','/','·'],
+      ['V','L','D','I','.', '-', '+'],
+      ['=']
+    ];
+    pad.innerHTML = buttons.map(row => `
+      <div class="pad-row">
+        ${row.map(lbl => `<button type="${lbl==='='?'submit':'button'}" data-val="${lbl}">${lbl}</button>`).join('')}
+      </div>`
+    ).join('');
+
+    pad.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const val = btn.dataset.val;
+      if (val === 'AC') { display.value=''; return; }
+      if (val === '=') return; // submit handled by form
+      display.value += val;
+    });
+  </script>
+</body>
+</html>

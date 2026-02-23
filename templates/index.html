@@ -2,59 +2,149 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Конвертор та Калькулятор чисел</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        h1 { color: #2c3e50; }
-        form { margin-bottom: 30px; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
-        input, select { margin: 5px; padding: 5px; }
-        .result { margin-top: 10px; font-weight: bold; color: green; }
-    </style>
+    <title>Numerix · Конвертор</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-    <h1>Конвертор чисел</h1>
-    <form method="post" action="/convert">
-        <label>Введіть число: </label>
-        <input type="text" name="value" value="{{ value or '' }}" required>
-        <label>З системи: </label>
-        <select name="system_from">
-            <option value="arabic" {% if system_from=='arabic' %}selected{% endif %}>Арабська</option>
-            <option value="roman" {% if system_from=='roman' %}selected{% endif %}>Римська</option>
-            <option value="egyptian" {% if system_from=='egyptian' %}selected{% endif %}>Єгипетська</option>
-            <option value="thai" {% if system_from=='thai' %}selected{% endif %}>Тайська</option>
-        </select>
-        <label>В систему: </label>
-        <select name="system_to">
-            <option value="arabic" {% if system_to=='arabic' %}selected{% endif %}>Арабська</option>
-            <option value="roman" {% if system_to=='roman' %}selected{% endif %}>Римська</option>
-            <option value="egyptian" {% if system_to=='egyptian' %}selected{% endif %}>Єгипетська</option>
-            <option value="thai" {% if system_to=='thai' %}selected{% endif %}>Тайська</option>
-        </select>
-        <button type="submit">Конвертувати</button>
-    </form>
-    {% if result %}
-        <div class="result">Результат: {{ result }}</div>
-    {% endif %}
+<body class="page-light">
+  <header class="nav-bar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">Numerix</span>
+    </div>
+    <nav class="nav-links">
+      <a href="{{ url_for('home') }}" class="active">Конвертор</a>
+      <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+    </nav>
+    <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+  </header>
 
-    <h1>Калькулятор чисел</h1>
-    <form method="post" action="/calculate">
-        <label>Число 1: </label>
-        <input type="text" name="number1" value="{{ number1 or '' }}" required>
-        <label>Операція: </label>
-        <input type="text" name="operation" value="{{ operation or '' }}" required>
-        <label>Число 2 (якщо потрібно): </label>
-        <input type="text" name="number2" value="{{ number2 or '' }}">
-        <label>Система числення: </label>
-        <select name="system">
-            <option value="arabic" {% if system=='arabic' %}selected{% endif %}>Арабська</option>
-            <option value="roman" {% if system=='roman' %}selected{% endif %}>Римська</option>
-            <option value="egyptian" {% if system=='egyptian' %}selected{% endif %}>Єгипетська</option>
-            <option value="thai" {% if system=='thai' %}selected{% endif %}>Тайська</option>
-        </select>
-        <button type="submit">Обчислити</button>
-    </form>
-    {% if calc_result %}
-        <div class="result">Результат: {{ calc_result }}</div>
-    {% endif %}
+  <main class="shell">
+    <section class="hero" id="convert">
+      <p class="eyebrow">Roman · Arabic · Egyptian · Thai</p>
+      <h1>Конвертор числових систем</h1>
+    </section>
+
+    {% set sf = system_from or 'roman' %}
+    {% set st = system_to or 'arabic' %}
+    {% set placeholder_from = {
+      'roman': 'I · V · X · L · C · D · M',
+      'arabic': '0 1 2 3 4 5 6 7 8 9',
+      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    }[sf] %}
+    {% set placeholder_to = {
+      'roman': 'I · V · X · L · C · D · M',
+      'arabic': '0 1 2 3 4 5 6 7 8 9',
+      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    }[st] %}
+    {% set placeholder_from = {
+      'roman': 'I · V · X · L · C · D · M',
+      'arabic': '0 1 2 3 4 5 6 7 8 9',
+      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    }[sf] %}
+    {% set placeholder_to = {
+      'roman': 'I · V · X · L · C · D · M',
+      'arabic': '0 1 2 3 4 5 6 7 8 9',
+      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    }[st] %}
+
+    <section class="converter">
+      <form class="glass-card converter-card" action="/convert" method="POST">
+        <div class="convert-head">
+          <div class="head-col">
+            <span>From</span>
+            <select name="system_from">
+              <option value="arabic"   {% if sf=='arabic' %}selected{% endif %}>Arabic</option>
+              <option value="roman"    {% if sf=='roman' %}selected{% endif %}>Roman</option>
+              <option value="egyptian" {% if sf=='egyptian' %}selected{% endif %}>Egyptian</option>
+              <option value="thai"     {% if sf=='thai' %}selected{% endif %}>Thai</option>
+            </select>
+          </div>
+          <button type="button" class="swap" onclick="swapSystems()">⇄</button>
+          <div class="head-col">
+            <span>To</span>
+            <select name="system_to">
+              <option value="arabic"   {% if st=='arabic' %}selected{% endif %}>Arabic</option>
+              <option value="roman"    {% if st=='roman' %}selected{% endif %}>Roman</option>
+              <option value="egyptian" {% if st=='egyptian' %}selected{% endif %}>Egyptian</option>
+              <option value="thai"     {% if st=='thai' %}selected{% endif %}>Thai</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="convert-body">
+          <input class="side-input" id="value-input" type="text" name="value" value="{{ value or '' }}" placeholder="{{ placeholder_from }}" required>
+          <div class="side-divider"></div>
+          <div class="result-view" id="result-view" {% if result is not none %}data-locked="1"{% endif %}>{{ result if result is not none else placeholder_to }}</div>
+        </div>
+
+        <div class="convert-actions">
+          <button class="cta" type="submit">Конвертувати</button>
+        </div>
+      </form>
+
+      {% if sf == 'roman' %}
+      <section class="glass-card breakdown">
+        <h3>{{ value or placeholder_from }}</h3>
+        <div class="break-grid">
+          {% if value and st == 'arabic' %}
+            <div><p class="token">M</p><p class="token-sub">1000</p></div>
+            <div><p class="token">DCC</p><p class="token-sub">700</p></div>
+            <div><p class="token">X</p><p class="token-sub">10</p></div>
+            <div><p class="token">IV</p><p class="token-sub">4</p></div>
+          {% else %}
+            <div><p class="token">I</p><p class="token-sub">1</p></div>
+            <div><p class="token">V</p><p class="token-sub">5</p></div>
+            <div><p class="token">X</p><p class="token-sub">10</p></div>
+            <div><p class="token">L</p><p class="token-sub">50</p></div>
+          {% endif %}
+        </div>
+        <p class="break-total">{{ result or placeholder_to }}</p>
+      </section>
+      {% endif %}
+    </section>
+  </main>
+
+  <script>
+    const placeholders = {
+      roman: 'I · V · X · L · C · D · M',
+      arabic: '0 1 2 3 4 5 6 7 8 9',
+      egyptian: '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      thai: '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    };
+
+    const fromSel = document.querySelector('select[name="system_from"]');
+    const toSel   = document.querySelector('select[name="system_to"]');
+    const valueInput = document.getElementById('value-input');
+    const resultView = document.getElementById('result-view');
+
+    function swapSystems() {
+      const tmp  = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
+      clearResult();
+      updatePlaceholders();
+    }
+
+    function updatePlaceholders() {
+      valueInput.placeholder = placeholders[fromSel.value] || '';
+      if (!resultView.dataset.locked) {
+        resultView.textContent = placeholders[toSel.value] || '';
+      }
+    }
+
+    function clearResult() {
+      delete resultView.dataset.locked;
+      resultView.textContent = placeholders[toSel.value] || '';
+    }
+
+    fromSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
+    toSel?.addEventListener('change',   () => { clearResult(); updatePlaceholders(); });
+    valueInput?.addEventListener('input', () => { clearResult(); });
+
+    updatePlaceholders();
+  </script>
 </body>
 </html>
