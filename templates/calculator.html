@@ -99,7 +99,7 @@
     const styleFor = (lbl) => {
       if (lbl === '=') return 'btn-primary';
       if (lbl === 'AC' || lbl === '⌫') return 'btn-ghost';
-      if (['+','-','×','÷','%','^','·','/'].includes(lbl.trim())) return 'btn-op';
+      if (['+','-','×','÷','%','^','·','/','√','!','(',')','.'].includes(lbl.trim())) return 'btn-op';
       return '';
     };
 
