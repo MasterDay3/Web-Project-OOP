@@ -39,6 +39,18 @@
       'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
       'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     }[st] %}
+    {% set placeholder_from = {
+      'roman': 'I · V · X · L · C · D · M',
+      'arabic': '0 1 2 3 4 5 6 7 8 9',
+      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    }[sf] %}
+    {% set placeholder_to = {
+      'roman': 'I · V · X · L · C · D · M',
+      'arabic': '0 1 2 3 4 5 6 7 8 9',
+      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    }[st] %}
 
     <section class="converter">
       <form class="glass-card converter-card" action="/convert" method="POST">

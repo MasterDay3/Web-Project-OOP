@@ -5,18 +5,12 @@
     <title>{{ title if title else "My Numbers App" }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="page-light">
-    <header class="nav-bar">
-        <div class="brand">
-            <span class="brand-dot"></span>
-            <span class="brand-name">Numerix</span>
-        </div>
-        <nav class="nav-links">
-            <a href="{{ url_for('home') }}">Конвертор</a>
-            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('auth_routes.register') }}">Register</a> |
+            <a href="{{ url_for('auth_routes.login') }}">Login</a>
         </nav>
-        <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-        <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
     </header>
     <main>
         {% with messages = get_flashed_messages() %}

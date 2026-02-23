@@ -102,22 +102,25 @@ def calculate():
 @app.route('/calculator', methods=['GET','POST'])
 def calculator_page():
     expr = ''
+    system = 'roman'
     calc_result = None
     calc_error = None
     if request.method == 'POST':
         expr = request.form.get('expr','')
+        system = request.form.get('system','roman')
         parsed = parse_calc_expression(expr)
         if not parsed:
             calc_error = 'Не вдалося розібрати вираз'
         else:
             n1, op, n2 = parsed
             try:
-                calc = Calculator(n1, op, n2, 'roman')
+                calc = Calculator(n1, op, n2, system)
                 calc_result = calc.calculate()
             except Exception as e:
                 calc_error = f"Помилка: {e}"
     return render_template('calculator.html', expr=expr,
-                           calc_result=calc_result, calc_error=calc_error)
+                           calc_result=calc_result, calc_error=calc_error,
+                           system=system)
 
 
 if __name__ == '__main__':
