@@ -1,9 +1,37 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Login</h2>
-<form method="POST">
-    <input type="email" name="email" placeholder="Email" required><br>
-    <input type="password" name="password" placeholder="Password" required><br>
-    <button type="submit">Login</button>
-</form>
+<main class="auth-shell">
+  <section class="auth-card">
+    <div class="auth-hero">
+      <div class="brand-badge">𝜈</div>
+      <p class="eyebrow">Numerix • тренування чисел</p>
+      <h1>Вітаємо назад!</h1>
+      <p class="subtext">Продовжуй серію і тренуй арабські, римські, єгипетські й тайські числа.</p>
+      <ul class="hero-points">
+        <li>🎯 Денна мета та рівні</li>
+        <li>🏆 Досягнення за серію днів</li>
+        <li>🧠 Швидкі вправи конвертації</li>
+      </ul>
+    </div>
+
+    <div class="auth-form">
+      <h2>Увійти</h2>
+      <form method="POST">
+        <label>
+          Email
+          <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+        <label>
+          Пароль
+          <input type="password" name="password" placeholder="••••••••" required>
+        </label>
+        <button class="accent-button" type="submit">Увійти</button>
+        <p class="small">
+          Немає акаунта?
+          <a class="link-inline" href="{{ url_for('auth_routes.register') }}">Зареєструватися</a>
+        </p>
+      </form>
+    </div>
+  </section>
+</main>
 {% endblock %}

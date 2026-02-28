@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Numerix · Roman Calculator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="page-light">
+  <header class="nav-bar">
+    <div class="brand">
+      <span class="brand-dot"></span><span class="brand-name">Numerix</span>
+    </div>
+    <nav class="nav-links">
+      <a href="{{ url_for('home') }}">Конвертор</a>
+      <a href="{{ url_for('calculator_page') }}" class="active">Калькулятор</a>
+    </nav>
+    {% if current_user.is_authenticated %}
+      <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    {% else %}
+      <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+    {% endif %}
+  </header>
+
+  <main class="shell calc-page">
+    <section class="hero">
+      <p class="eyebrow">Numeral systems</p>
+      <h1>Multi-System Numeral Calculator</h1>
+    </section>
+
+    <section class="glass-card calc-roman-card">
+      <form method="POST" class="calc-roman-form">
+        <div class="calc-toolbar">
+          <input id="calc-display" name="expr" class="calc-display" type="text"
+                 value="{{ expr or '' }}" placeholder="Введіть вираз, напр. X+V або √X" readonly>
+          <label class="calc-system">
+            <span>Система</span>
+            <select name="system" id="system-select">
+              <option value="roman"   {% if system=='roman' or not system %}selected{% endif %}>Roman</option>
+              <option value="arabic"  {% if system=='arabic' %}selected{% endif %}>Arabic</option>
+              <option value="egyptian"{% if system=='egyptian' %}selected{% endif %}>Egyptian</option>
+              <option value="thai"    {% if system=='thai' %}selected{% endif %}>Thai</option>
+            </select>
+          </label>
+        </div>
+        <div class="calc-result-slot">
+          {% if calc_result %}= {{ calc_result }}{% elif calc_error %}{{ calc_error }}{% endif %}
+        </div>
+        <div class="calc-pad" id="calc-pad"></div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const display = document.getElementById('calc-display');
+    const pad = document.getElementById('calc-pad');
+    const systemSelect = document.getElementById('system-select');
+
+    const pads = {
+      roman: [
+        ['AC', '⌫',  '(',  ')' ],
+        ['M',  'D',  'C',  '÷' ],
+        ['L',  'X',  'V',  '×' ],
+        ['.',  'I',  '%',  '-' ],
+        ['√',  '^',  '!',  '+' ],
+        ['=']
+      ],
+      arabic: [
+        ['AC', '⌫',  '(',  ')' ],
+        ['7',  '8',  '9',  '÷' ],
+        ['4',  '5',  '6',  '×' ],
+        ['1',  '2',  '3',  '-' ],
+        ['.',  '0',  '%',  '+' ],
+        ['√',  '^',  '!'],
+        ['=']
+      ],
+      egyptian: [
+        ['AC',  '⌫',   '(',  ')' ],
+        ['𓀼',  '𓆐',  '𓂭', '÷' ],
+        ['𓆼',  '𓍢',  '𓎆', '×' ],
+        ['.',   '𓏽',  '%', '-' ],
+        ['√',   '^',   '!',  '+' ],
+        ['=']
+      ],
+      thai: [
+        ['AC', '⌫',  '(',  ')' ],
+        ['๗',  '๘',  '๙',  '÷' ],
+        ['๔',  '๕',  '๖',  '×' ],
+        ['๑',  '๒',  '๓',  '-' ],
+        ['.',  '๐',  '%',  '+' ],
+        ['√',  '^',  '!'],
+        ['=']
+      ]
+    };
+
+    const placeholders = {
+      roman: 'Введіть вираз, напр. X+V або √X',
+      arabic: 'Введіть вираз, напр. 12+7 або √9',
+      egyptian: 'Введіть вираз, напр. 𓏽𓏽+𓏽𓎆',
+      thai: 'Введіть вираз, напр. ๑๒+๗'
+    };
+
+    const styleFor = (lbl) => {
+      if (lbl === '=') return 'btn-primary';
+      if (lbl === 'AC' || lbl === '⌫') return 'btn-ghost';
+      if (['+','-','×','÷','%','^','·','/','√','!','(',')','.'].includes(lbl.trim())) return 'btn-op';
+      return '';
+    };
+
+    function normalizeRows(rawRows) {
+      const normalized = [];
+      let compactRow = [];
+
+      for (const row of rawRows) {
+        if (row.length === 1 && row[0] !== '=') {
+          compactRow.push(row[0]);
+          if (compactRow.length === 4) {
+            normalized.push(compactRow);
+            compactRow = [];
+          }
+          continue;
+        }
+        if (compactRow.length) {
+          normalized.push(compactRow);
+          compactRow = [];
+        }
+        normalized.push(row);
+      }
+
+      if (compactRow.length) normalized.push(compactRow);
+      return normalized;
+    }
+
+    function renderPad(system) {
+      const rows = normalizeRows(pads[system] || pads.roman);
+      pad.innerHTML = rows.map(row => `
+        <div class="pad-row">
+          ${row.map(lbl => {
+              const full = (lbl === '=' && row.length === 1) ? ' btn-full' : '';
+              return `<button class="${styleFor(lbl)}${full}" type="${lbl==='='?'submit':'button'}" data-val="${lbl}">${lbl}</button>`;
+            }).join('')}
+        </div>`).join('');
+      display.placeholder = placeholders[system] || placeholders.roman;
+    }
+
+    renderPad(systemSelect.value || 'roman');
+
+    pad.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const val = btn.dataset.val;
+      if (val === 'AC') { display.value=''; return; }
+      if (val === '⌫') { display.value = display.value.slice(0,-1); return; }
+      if (val === '=') return; // submit handled by form
+      display.value += val;
+    });
+
+    systemSelect.addEventListener('change', () => {
+      renderPad(systemSelect.value);
+      display.value = '';
+    });
+  </script>
+</body>
+</html>

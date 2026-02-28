@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Numerix · Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="page-light">
+  <header class="nav-bar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">Numerix</span>
+    </div>
+    <nav class="nav-links">
+      <a href="{{ url_for('home') }}">Конвертор</a>
+      <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+      <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+    </nav>
+    <a class="ghost" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+  </header>
+
+  <main class="shell dashboard-page">
+    <section class="hero">
+      <p class="eyebrow">Welcome back</p>
+      <h1>Привіт, {{ current_user.username }}!</h1>
+      <p class="lede">Тут швидкий доступ до основних інструментів Numerix.</p>
+    </section>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <section class="glass-card dashboard-alert">
+        {% for msg in messages %}
+          <p>{{ msg }}</p>
+        {% endfor %}
+      </section>
+      {% endif %}
+    {% endwith %}
+
+    <section class="dashboard-grid">
+      <article class="glass-card dashboard-tile">
+        <h3>Конвертор</h3>
+        <p>Перекладайте числа між Roman, Arabic, Egyptian та Thai системами.</p>
+        <a class="cta" href="{{ url_for('home') }}">Відкрити конвертор</a>
+      </article>
+
+      <article class="glass-card dashboard-tile">
+        <h3>Калькулятор</h3>
+        <p>Обчислення у різних системах числення з єдиною клавіатурою.</p>
+        <a class="cta" href="{{ url_for('calculator_page') }}">Відкрити калькулятор</a>
+      </article>
+
+      <article class="glass-card dashboard-tile">
+        <h3>Акаунт</h3>
+        <p>Email: {{ current_user.email }}</p>
+        <p>Рівень: {{ current_user.level }}</p>
+        <a class="ghost dashboard-logout" href="{{ url_for('auth_routes.logout') }}">Вийти з акаунта</a>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
