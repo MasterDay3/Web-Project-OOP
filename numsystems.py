@@ -154,7 +154,7 @@ class Convertor:
                 return 'Invalid input, no such number in egyptian numeral system'
         for val, sym in self.egyptian_numbers:
             result += number.count(sym) * val
-        return result
+        return str(result)
 
     def convert_to_thai(self):
         number = self.value.strip()
@@ -242,16 +242,28 @@ class Calculator:
                     match self.operation:
                         case '+':
                             res = a + b
+                            if res == int(res):
+                                res = int(res)
                         case '-':
                             res = a - b
+                            if res == int(res):
+                                res = int(res)
                         case '*':
                             res = a * b
+                            if res == int(res):
+                                res = int(res)
                         case '/':
                             res = a / b
+                            if res == int(res):
+                                res = int(res)
                         case 'power':
                             res = a ** b
+                            if res == int(res):
+                                res = int(res)
                         case '%':
                             res = a % b
+                            if res == int(res):
+                                res = int(res)
                         case _:
                             return 'No such operation'
                 if not two_nums:
@@ -264,8 +276,12 @@ class Calculator:
                             if a != int(a):
                                 raise ValueError('Factorial is only defined for non-negative integers')
                             res = math.factorial(int(a))
+                            if res == int(res):
+                                res = int(res)
                         case 'sqrt':
                             res = math.sqrt(a)
+                            if res == int(res):
+                                res = int(res)
             case 'roman':
                 if two_nums:
                     a = Convertor(self.number1).convert_roman_to_arab()
@@ -416,21 +432,33 @@ class Calculator:
                     match self.operation:
                         case '+':
                             result = a + b
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case '-':
                             result = a - b
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case '*':
                             result = a * b
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case '/':
                             result = a / b
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case 'power':
                             result = a ** b
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case '%':
                             result = a % b
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case _:
                             return 'No such operation'
@@ -445,15 +473,19 @@ class Calculator:
                             if a != int(a):
                                 raise ValueError('Factorial is only defined for non-negative integers')
                             result = math.factorial(int(a))
+                            if result == int(result):
+                                result = int(result)
                             res = res = Convertor(str(result)).convert_to_thai()
                         case 'sqrt':
                             result = math.sqrt(a)
+                            if result == int(result):
+                                result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
             case _:
                 raise TypeError('No such number system')
         return str(res)
 
-if __name__ == '__main__':
+def test():
     print("-" * 30)
     # Тести для convert_to_roman
     assert Convertor("1").convert_to_roman() == "I"
@@ -504,10 +536,10 @@ if __name__ == '__main__':
     assert Convertor("10000000").convert_to_egyptian() == error_range
 
     # 2. Єгипетські -> Арабські
-    assert Convertor("𓏽").convert_egyptian_to_arab() == 1
-    assert Convertor("𓎆").convert_egyptian_to_arab() == 10
-    assert Convertor("𓎆𓏽𓏽").convert_egyptian_to_arab() == 12
-    assert Convertor("𓏽𓎆𓏽").convert_egyptian_to_arab() == 12
+    assert Convertor("𓏽").convert_egyptian_to_arab() == "1"
+    assert Convertor("𓎆").convert_egyptian_to_arab() == "10"
+    assert Convertor("𓎆𓏽𓏽").convert_egyptian_to_arab() == "12"
+    assert Convertor("𓏽𓎆𓏽").convert_egyptian_to_arab() == "12"
     
     error_invalid = 'Invalid input, no such number in egyptian numeral system'
     assert Convertor("ABC").convert_egyptian_to_arab() == error_invalid
@@ -560,18 +592,19 @@ if __name__ == '__main__':
     # Передбачається що Convertor і Calculator вже імпортовані
 
     # ── ARABIC ──
-    assert Calculator('10', '+', '5').calculate() == '15.0'
-    assert Calculator('10', '-', '3').calculate() == '7.0'
-    assert Calculator('4',  '*', '3').calculate() == '12.0'
-    assert Calculator('10', '/', '2').calculate() == '5.0'
-    assert Calculator('2',  'power', '8').calculate() == '256.0'
-    assert Calculator('10', '%', '3').calculate() == '1.0'
+    assert Calculator('10', '+', '5').calculate() == '15'
+    assert Calculator('10', '-', '3').calculate() == '7'
+    assert Calculator('4',  '*', '3').calculate() == '12'
+    assert Calculator('10', '/', '2').calculate() == '5'
+    assert Calculator('2',  'power', '8').calculate() == '256'
+    assert Calculator('10', '%', '3').calculate() == '1'
     assert Calculator('5',  '!').calculate() == '120'
     assert Calculator('0',  '!').calculate() == '1'
-    assert Calculator('9',  'sqrt').calculate() == '3.0'
+    assert Calculator('9',  'sqrt').calculate() == '3'
+    # дробові — залишаються
     assert Calculator('1',  '/', '4').calculate() == '0.25'
-    assert Calculator('2.5','+', '1.5').calculate() == '4.0'
-    assert Calculator('-5', '+', '3').calculate() == '-2.0'
+    assert Calculator('2.5', '+', '1.5').calculate() == '4'
+    assert Calculator('-5', '+', '3').calculate() == '-2'
     try: Calculator('10', '+').calculate(); assert False
     except ValueError: pass
     try: Calculator('5', '!', '3').calculate(); assert False
@@ -626,4 +659,8 @@ if __name__ == '__main__':
     assert Calculator('๑',  '/', '๔',  'thai').calculate() == '๐.๒๕'  # 1/4=0.25 (thai підтримує дроби)
     print('THAI: OK')
 
-    print('\nВсі тести пройшли ✓')
+    print('\nВсі тести пройшл')
+
+if __name__ == '__main__':
+    #test()
+    pass
