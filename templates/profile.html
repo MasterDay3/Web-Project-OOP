@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Numerix · Профіль</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-light">
+    <header class="nav-bar">
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Numerix</span>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Конвертор</a>
+            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+            <a href="{{ url_for('task_routes.tasks_page') }}">Задачі</a>
+            <a href="{{ url_for('leaderboard_routes.leaderboard') }}">Leaderboard</a>
+        </nav>
+        <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    </header>
+
+    <main class="shell">
+        <section class="hero">
+            <p class="eyebrow">Акаунт</p>
+            <h1>Налаштування профілю</h1>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, msg in messages %}
+        <div class="profile-alert {{ category }}">{{ msg }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="profile-grid">
+
+            <!-- Особиста інфо -->
+            <section class="glass-card profile-card">
+                <h2>Особиста інформація</h2>
+                <form method="POST">
+                    <input type="hidden" name="action" value="update_info">
+                    <label class="profile-label">
+                        Імʼя користувача
+                        <input type="text" name="username" value="{{ current_user.username }}" required>
+                    </label>
+                    <label class="profile-label">
+                        Email
+                        <input type="email" name="email" value="{{ current_user.email }}" required>
+                    </label>
+                    <button class="cta" type="submit">Зберегти</button>
+                </form>
+            </section>
+
+            <!-- Зміна пароля -->
+            <section class="glass-card profile-card">
+                <h2>Зміна пароля</h2>
+                <form method="POST">
+                    <input type="hidden" name="action" value="update_password">
+                    <label class="profile-label">
+                        Старий пароль
+                        <input type="password" name="old_password" required>
+                    </label>
+                    <label class="profile-label">
+                        Новий пароль
+                        <input type="password" name="new_password" required>
+                    </label>
+                    <label class="profile-label">
+                        Підтвердити пароль
+                        <input type="password" name="confirm_password" required>
+                    </label>
+                    <button class="cta" type="submit">Змінити пароль</button>
+                </form>
+            </section>
+
+            <!-- Денна ціль -->
+            <section class="glass-card profile-card">
+                <h2>Денна ціль</h2>
+                <p class="profile-muted">Скільки задач ти хочеш робити щодня?</p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="update_goal">
+                    <label class="profile-label">
+                        Кількість задач на день
+                        <input type="number" name="daily_goal" value="{{ current_user.daily_goal }}" min="1" max="200">
+                    </label>
+                    <button class="cta" type="submit">Зберегти</button>
+                </form>
+
+                <!-- Статистика -->
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-val">{{ current_user.level }}</span>
+                        <span class="stat-lbl">Рівень</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">{{ current_user.xp }}</span>
+                        <span class="stat-lbl">XP</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">🔥 {{ current_user.streak }}</span>
+                        <span class="stat-lbl">Стрік</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <style>
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .profile-card {
+            padding: 28px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .profile-card h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .profile-muted {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .profile-label {
+            display: grid;
+            gap: 6px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .profile-label input {
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            background: #fff;
+        }
+
+        .profile-label input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(178, 31, 31, 0.1);
+        }
+
+        .profile-alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .profile-alert.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .profile-alert.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-item {
+            display: grid;
+            gap: 2px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-lbl {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+    </style>
+</body>
+
+</html>

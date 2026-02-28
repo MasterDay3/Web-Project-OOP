@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Numerix · Помилки</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-light">
+    <header class="nav-bar">
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Numerix</span>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Конвертор</a>
+            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+            <a href="{{ url_for('task_routes.tasks_page') }}">Задачі</a>
+            <a href="{{ url_for('leaderboard_routes.leaderboard') }}">Leaderboard</a>
+            <a href="{{ url_for('stats_routes.stats') }}">Статистика</a>
+        </nav>
+        <a class="ghost" href="{{ url_for('profile_routes.profile') }}">Профіль</a>
+        <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    </header>
+
+    <main class="shell">
+        <section class="hero">
+            <p class="eyebrow">Робота над помилками</p>
+            <h1>Список помилок</h1>
+            <p class="lede">Задачі на які ти відповів неправильно. Повтори їх щоб краще засвоїти.</p>
+        </section>
+
+        {% if mistakes %}
+        <!-- Статистика помилок -->
+        <div class="mk-summary glass-card">
+            <div class="mk-sum-item">
+                <span class="mk-sum-val">{{ mistakes | length }}</span>
+                <span class="mk-sum-lbl">Останніх помилок</span>
+            </div>
+            <div class="mk-sum-item">
+                {% set systems = mistakes | map(attribute='system') | list %}
+                <span class="mk-sum-val">{{ systems | unique | list | length }}</span>
+                <span class="mk-sum-lbl">Систем з помилками</span>
+            </div>
+            <div class="mk-sum-item">
+                <span class="mk-sum-val">
+                    {{ mistakes | selectattr('system', 'equalto', mistakes | map(attribute='system') | list |
+                    groupby('system') | sort(attribute='list', reverse=True) | first | default({'grouper': '—'}) |
+                    attr('grouper')) | list | length }}
+                </span>
+                <span class="mk-sum-lbl">Найпроблемніша система</span>
+            </div>
+        </div>
+
+        <!-- Фільтр по системах -->
+        <div class="mk-filters">
+            <button class="mk-filter active" onclick="filterSystem('all')">Всі</button>
+            {% set seen = [] %}
+            {% for m in mistakes %}
+            {% if m.system not in seen %}
+            {% set _ = seen.append(m.system) %}
+            <button class="mk-filter" onclick="filterSystem('{{ m.system }}')">
+                {{ m.system | capitalize }}
+            </button>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Список помилок -->
+        <div class="mk-list">
+            {% for m in mistakes %}
+            <div class="glass-card mk-item" data-system="{{ m.system }}">
+                <div class="mk-item-left">
+                    <span class="mk-badge">{{ m.system | capitalize }}</span>
+                    <span class="mk-time">{{ m.answered_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                </div>
+                <div class="mk-item-right">
+                    <button class="cta mk-retry-btn" data-system="{{ m.system }}" data-difficulty="easy"
+                        onclick="retrySystem(this)">
+                        Повторити →
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Панель повторення -->
+        <section class="glass-card mk-practice" id="mk-practice" style="display:none">
+            <h3 id="mk-practice-title">Повторення</h3>
+            <p class="task-question" id="mk-question"></p>
+            <div class="options-grid" id="mk-options"></div>
+            <div class="task-feedback" id="mk-feedback" style="display:none">
+                <p id="mk-feedback-text"></p>
+                <button class="cta" id="mk-next-btn">Ще одна →</button>
+            </div>
+        </section>
+
+        {% else %}
+        <section class="glass-card mk-empty">
+            <p>Помилок немає! Продовжуй в тому ж дусі.</p>
+            <a class="cta" href="{{ url_for('task_routes.tasks_page') }}">Продовжити тренування</a>
+        </section>
+        {% endif %}
+    </main>
+
+    <style>
+        .mk-summary {
+            display: flex;
+            gap: 0;
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .mk-sum-item {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            border-right: 1px solid var(--border);
+            display: grid;
+            gap: 4px;
+        }
+
+        .mk-sum-item:last-child {
+            border-right: none;
+        }
+
+        .mk-sum-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .mk-sum-lbl {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .mk-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .mk-filter {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .mk-filter.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .mk-list {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mk-item {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mk-item-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .mk-badge {
+            background: #fdf1f1;
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .mk-time {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .mk-retry-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .mk-practice {
+            padding: 28px 32px;
+            display: grid;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .mk-practice h3 {
+            margin: 0;
+        }
+
+        .mk-empty {
+            padding: 40px;
+            text-align: center;
+            display: grid;
+            gap: 16px;
+            place-items: center;
+        }
+
+        .mk-empty p {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .option-btn {
+            padding: 18px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            background: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s ease;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+            background: #fff9f9;
+        }
+
+        .option-btn.correct {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .option-btn.wrong {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .task-feedback {
+            text-align: center;
+        }
+
+        .task-feedback p {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 14px;
+        }
+
+        .task-feedback p.ok {
+            color: #15803d;
+        }
+
+        .task-feedback p.err {
+            color: #b91c1c;
+        }
+    </style>
+
+    <script>
+        let currentSystem = 'all';
+        let retrySystem_data = null;
+
+        function filterSystem(system) {
+            currentSystem = system;
+            document.querySelectorAll('.mk-filter').forEach(b => {
+                b.classList.toggle('active', b.textContent.trim().toLowerCase() === system || (system === 'all' && b.textContent.trim() === 'Всі'));
+            });
+            document.querySelectorAll('.mk-item').forEach(item => {
+                item.style.display = (system === 'all' || item.dataset.system === system) ? 'flex' : 'none';
+            });
+        }
+
+        async function retrySystem(btn) {
+            const system = btn.dataset.system;
+            const difficulty = btn.dataset.difficulty || 'easy';
+            retrySystem_data = { system, difficulty };
+
+            const practice = document.getElementById('mk-practice');
+            practice.style.display = 'grid';
+            practice.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('mk-practice-title').textContent = `Повторення: ${system.charAt(0).toUpperCase() + system.slice(1)}`;
+
+            await loadRetryTask(system, difficulty);
+        }
+
+        async function loadRetryTask(system, difficulty) {
+            const res = await fetch('/mistakes/retry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ system, difficulty })
+            });
+            const data = await res.json();
+
+            document.getElementById('mk-question').textContent = data.question;
+            document.getElementById('mk-feedback').style.display = 'none';
+
+            const grid = document.getElementById('mk-options');
+            grid.innerHTML = '';
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => submitRetry(opt);
+                grid.appendChild(btn);
+            });
+        }
+
+        async function submitRetry(answer) {
+            document.querySelectorAll('#mk-options .option-btn').forEach(b => b.disabled = true);
+
+            const res = await fetch('/tasks/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer })
+            });
+            const data = await res.json();
+
+            document.querySelectorAll('#mk-options .option-btn').forEach(btn => {
+                if (btn.textContent === data.correct) btn.classList.add('correct');
+                else if (btn.textContent === answer && !data.is_correct) btn.classList.add('wrong');
+            });
+
+            const ft = document.getElementById('mk-feedback-text');
+            ft.className = data.is_correct ? 'ok' : 'err';
+            ft.textContent = data.is_correct ? `✅ Правильно! +${data.xp_gained} XP` : `❌ Правильна відповідь: ${data.correct}`;
+            document.getElementById('mk-feedback').style.display = 'block';
+        }
+
+        document.getElementById('mk-next-btn')?.addEventListener('click', () => {
+            if (retrySystem_data) {
+                loadRetryTask(retrySystem_data.system, retrySystem_data.difficulty);
+            }
+        });
+    </script>
+</body>
+
+</html>

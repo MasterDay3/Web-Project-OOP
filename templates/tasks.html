@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Numerix · Задачі</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-light">
+    <header class="nav-bar">
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Numerix</span>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Конвертор</a>
+            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+            <a href="{{ url_for('task_routes.tasks_page') }}" class="active">Задачі</a>
+        </nav>
+        <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    </header>
+
+    <main class="shell">
+        <section class="hero">
+            <p class="eyebrow">Тренування</p>
+            <h1>Задачі з числових систем</h1>
+        </section>
+
+        <!-- Налаштування задачі -->
+        <section class="glass-card task-settings">
+            <div class="settings-row">
+                <label class="setting-group">
+                    <span>Система</span>
+                    <select id="system-select">
+                        <option value="roman">Roman 🏛️</option>
+                        <option value="arabic">Arabic 🔢</option>
+                        <option value="egyptian">Egyptian 𓂀</option>
+                        <option value="thai">Thai 🇹🇭</option>
+                        <option value="binary">Binary 💻</option>
+                    </select>
+                </label>
+                <label class="setting-group">
+                    <span>Складність</span>
+                    <select id="difficulty-select">
+                        <option value="easy">Easy (1–20)</option>
+                        <option value="medium">Medium (21–100)</option>
+                        <option value="hard">Hard (101–3999)</option>
+                    </select>
+                </label>
+                <button class="cta" id="start-btn">Почати</button>
+            </div>
+        </section>
+
+        <!-- Блок задачі -->
+        <section class="glass-card task-card" id="task-card" style="display:none">
+            <div class="task-meta">
+                <span id="task-system" class="task-badge"></span>
+                <span id="task-streak">🔥 Стрік: <b id="streak-val">0</b></span>
+                <span id="task-xp">⚡ XP: <b id="xp-val">{{ current_user.xp }}</b></span>
+                <span id="task-progress">📋 Сьогодні: <b id="today-val">0</b> / <b id="goal-val">{{
+                        current_user.daily_goal }}</b></span>
+            </div>
+
+            <p class="task-question" id="task-question"></p>
+
+            <div class="options-grid" id="options-grid"></div>
+
+            <div class="task-feedback" id="task-feedback" style="display:none">
+                <p id="feedback-text"></p>
+                <button class="cta" id="next-btn">Наступна →</button>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        .task-settings {
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .setting-group {
+            display: grid;
+            gap: 6px;
+            font-weight: 700;
+        }
+
+        .setting-group select {
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 600;
+            background: #fff;
+            min-width: 160px;
+        }
+
+        .task-card {
+            padding: 28px 32px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .task-badge {
+            background: #fdf1f1;
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .task-question {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+            color: var(--ink);
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .option-btn {
+            padding: 18px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            background: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s ease;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+            background: #fff9f9;
+            transform: translateY(-1px);
+        }
+
+        .option-btn.correct {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .option-btn.wrong {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            transform: none;
+        }
+
+        .task-feedback {
+            text-align: center;
+        }
+
+        .task-feedback p {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 14px;
+        }
+
+        .task-feedback p.ok {
+            color: #15803d;
+        }
+
+        .task-feedback p.err {
+            color: #b91c1c;
+        }
+    </style>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const taskCard = document.getElementById('task-card');
+        const taskQuestion = document.getElementById('task-question');
+        const optionsGrid = document.getElementById('options-grid');
+        const feedback = document.getElementById('task-feedback');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const taskBadge = document.getElementById('task-system');
+        const streakVal = document.getElementById('streak-val');
+        const xpVal = document.getElementById('xp-val');
+        const todayVal = document.getElementById('today-val');
+        const goalVal = document.getElementById('goal-val');
+
+        let currentAnswer = null;
+
+        async function loadTask() {
+            const system = document.getElementById('system-select').value;
+            const difficulty = document.getElementById('difficulty-select').value;
+
+            optionsGrid.innerHTML = '<p style="text-align:center;color:var(--muted)">Завантаження...</p>';
+            feedback.style.display = 'none';
+            taskCard.style.display = 'grid';
+
+            const res = await fetch('/tasks/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ system, difficulty })
+            });
+            const data = await res.json();
+
+            taskBadge.textContent = data.system.toUpperCase();
+            taskQuestion.textContent = data.question;
+            currentAnswer = null;
+
+            optionsGrid.innerHTML = '';
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => submitAnswer(opt);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        async function submitAnswer(answer) {
+            // блокуємо всі кнопки
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+            const res = await fetch('/tasks/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answer })
+            });
+            const data = await res.json();
+
+            // підсвічуємо варіанти
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                if (btn.textContent === data.correct) btn.classList.add('correct');
+                else if (btn.textContent === answer && !data.is_correct) btn.classList.add('wrong');
+            });
+
+            // фідбек
+            feedbackText.className = data.is_correct ? 'ok' : 'err';
+            feedbackText.textContent = data.is_correct
+                ? `✅ Правильно! +${data.xp_gained} XP`
+                : `❌ Неправильно. Правильна відповідь: ${data.correct}`;
+
+            // оновлюємо статистику
+            xpVal.textContent = data.total_xp;
+            streakVal.textContent = data.streak;
+            todayVal.textContent = data.tasks_today;
+            goalVal.textContent = data.goal;
+
+            if (data.goal_met) {
+                feedbackText.textContent += ' 🎯 Денну ціль досягнуто!';
+            }
+
+            feedback.style.display = 'block';
+        }
+
+        startBtn.addEventListener('click', loadTask);
+        nextBtn.addEventListener('click', loadTask);
+    </script>
+</body>
+
+</html>
