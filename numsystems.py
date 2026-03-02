@@ -413,7 +413,7 @@ class Calculator:
                             if result != int(result):
                                 raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
-                            res = res = Convertor(str(result)).convert_to_egyptian()
+                            res = Convertor(str(result)).convert_to_egyptian()
                         case 'sqrt':
                             result = math.sqrt(a)
                             if result != int(result):
@@ -475,7 +475,7 @@ class Calculator:
                             result = math.factorial(int(a))
                             if result == int(result):
                                 result = int(result)
-                            res = res = Convertor(str(result)).convert_to_thai()
+                            res = Convertor(str(result)).convert_to_thai()
                         case 'sqrt':
                             result = math.sqrt(a)
                             if result == int(result):

@@ -19,7 +19,7 @@
       <form method="POST" class="calc-roman-form">
         <div class="calc-toolbar">
           <input id="calc-display" name="expr" class="calc-display" type="text"
-                 value="{{ expr or '' }}" placeholder="Введіть вираз, напр. X+V або √X" readonly>
+                 value="{{ expr or '' }}" placeholder="Введіть вираз, напр. X+V" readonly>
           <label class="calc-system">
             <span>Система</span>
             <select name="system" id="system-select">
@@ -30,8 +30,8 @@
             </select>
           </label>
         </div>
-        <div class="calc-result-slot">
-          {% if calc_result %}= {{ calc_result }}{% elif calc_error %}{{ calc_error }}{% endif %}
+        <div class="calc-result-slot {% if calc_error %}calc-result-error{% endif %}">
+          {% if calc_result %}= {{ calc_result }}{% elif calc_error %}⚠ {{ calc_error }}{% endif %}
         </div>
         <div class="calc-pad" id="calc-pad"></div>
       </form>
@@ -54,7 +54,8 @@
         ['AC', '⌫',  '(',  ')' ],
         ['M',  'D',  'C',  '÷' ],
         ['L',  'X',  'V',  '×' ],
-        ['.',  'I',  '-',  '+' ],
+        ['',   'I',  '',   '-' ],
+        ['',   '',   '',   '+' ],
         ['=']
       ],
       arabic: [
@@ -66,10 +67,11 @@
         ['=']
       ],
       egyptian: [
-        ['AC',  '⌫',   '(',  ')' ],
-        ['𓀼',  '𓆐',  '𓂭', '÷' ],
-        ['𓆼',  '𓍢',  '𓎆', '×' ],
-        ['.',   '𓏺',  '-',  '+' ],
+        ['AC', '⌫',  '(',  ')' ],
+        ['𓀼', '𓆐', '𓂭', '÷' ],
+        ['𓆼', '𓍢', '𓎆', '×' ],
+        ['',   '𓏺', '',   '-' ],
+        ['',   '',   '',   '+' ],
         ['=']
       ],
       thai: [
@@ -146,39 +148,22 @@
       return '';
     };
 
-    function normalizeRows(rawRows) {
-      const normalized = [];
-      let compactRow = [];
-
-      for (const row of rawRows) {
-        if (row.length === 1 && row[0] !== '=') {
-          compactRow.push(row[0]);
-          if (compactRow.length === 4) {
-            normalized.push(compactRow);
-            compactRow = [];
-          }
-          continue;
-        }
-        if (compactRow.length) {
-          normalized.push(compactRow);
-          compactRow = [];
-        }
-        normalized.push(row);
-      }
-
-      if (compactRow.length) normalized.push(compactRow);
-      return normalized;
-    }
+    const displayMap = { '-': '−' };
 
     function renderPad(system) {
-      const rows = normalizeRows(pads[system] || pads.roman);
-      pad.innerHTML = rows.map(row => `
-        <div class="pad-row">
-          ${row.filter(lbl => lbl !== '').map(lbl => {
-              const full = (lbl === '=' && row.length === 1) ? ' btn-full' : '';
-              return `<button class="${styleFor(lbl)}${full}" type="${lbl==='='?'submit':'button'}" data-val="${lbl}">${lbl}</button>`;
+      const rows = pads[system] || pads.roman;
+      pad.innerHTML = rows.map(row => {
+        const isEqRow = row.length === 1 && row[0] === '=';
+        const cols = isEqRow ? '1fr' : 'repeat(4, 1fr)';
+        return `
+        <div class="pad-row" style="grid-template-columns: ${cols}">
+          ${row.map(lbl => {
+              if (lbl === '') return `<div class="pad-spacer"></div>`;
+              const show = displayMap[lbl] || lbl;
+              return `<button class="${styleFor(lbl)}" type="${lbl==='='?'submit':'button'}" data-val="${lbl}">${show}</button>`;
             }).join('')}
-        </div>`).join('');
+        </div>`;
+      }).join('');
       display.placeholder = placeholders[system] || placeholders.roman;
     }
 

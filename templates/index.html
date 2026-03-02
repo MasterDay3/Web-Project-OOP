@@ -70,6 +70,32 @@
       opacity: 0;
     }
 
+    /* Subtractive group (e.g. CD = D − C) */
+    .token-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(14px);
+      background: rgba(178,31,31,0.05);
+      border: 1.5px solid rgba(178,31,31,0.12);
+      border-radius: 14px;
+      padding: 6px;
+    }
+    .token-group .tg-card {
+      opacity: 1;
+      transform: none;
+      border: none;
+      background: transparent;
+      min-width: 48px;
+      padding: 8px 10px;
+    }
+    .token-minus {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
     /* Equals row */
     .breakdown-equals {
       display: flex;
@@ -195,6 +221,11 @@
     [10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]
   ];
   const ROMAN_VALS = {M:1000,D:500,C:100,L:50,X:10,V:5,I:1};
+  const SUBTRACTIVE = {
+    CM:{hi:'M',hv:1000,lo:'C',lv:100}, CD:{hi:'D',hv:500,lo:'C',lv:100},
+    XC:{hi:'C',hv:100,lo:'X',lv:10},   XL:{hi:'L',hv:50,lo:'X',lv:10},
+    IX:{hi:'X',hv:10,lo:'I',lv:1},      IV:{hi:'V',hv:5,lo:'I',lv:1}
+  };
 
   const EGYPTIAN_TABLE = [
     [1000000,'𓀼'],[100000,'𓆐'],[10000,'𓂭'],
@@ -216,7 +247,12 @@
     for (const [val, sym] of ROMAN_TABLE) {
       const cnt = Math.floor(num / val);
       if (cnt > 0) {
-        tokens.push({ symbol: sym.repeat(cnt), arabic: val * cnt });
+        const sub = SUBTRACTIVE[sym];
+        if (sub) {
+          tokens.push({ symbol: sym, arabic: val, isSub: true, ...sub });
+        } else {
+          tokens.push({ symbol: sym.repeat(cnt), arabic: val * cnt });
+        }
         num %= val;
       }
     }
@@ -231,10 +267,12 @@
       const curr = ROMAN_VALS[str[i]] || 0;
       const next = i+1 < str.length ? (ROMAN_VALS[str[i+1]] || 0) : 0;
       if (curr < next) {
-        tokens.push({ symbol: str[i]+str[i+1], arabic: next - curr, subtract: false });
+        const sym = str[i]+str[i+1];
+        const sub = SUBTRACTIVE[sym];
+        tokens.push({ symbol: sym, arabic: next - curr, isSub: true, ...sub });
         i += 2;
       } else {
-        tokens.push({ symbol: str[i], arabic: curr, subtract: false });
+        tokens.push({ symbol: str[i], arabic: curr });
         i++;
       }
     }
@@ -358,23 +396,42 @@
         plus.textContent = '+';
         stage.appendChild(plus);
       }
-      const card = document.createElement('div');
-      card.className = 'token-card';
-      card.innerHTML = `
-        <span class="tc-symbol">${tok.symbol}</span>
-        <span class="tc-value">${tok.arabic !== null ? tok.arabic.toLocaleString() : ''}</span>
-      `;
-      stage.appendChild(card);
+
+      if (tok.isSub) {
+        // Subtractive pair: show hi − lo = value
+        const group = document.createElement('div');
+        group.className = 'token-group';
+        group.innerHTML = `
+          <div class="token-card tg-card">
+            <span class="tc-symbol">${tok.hi}</span>
+            <span class="tc-value">${tok.hv.toLocaleString()}</span>
+          </div>
+          <span class="token-minus">−</span>
+          <div class="token-card tg-card">
+            <span class="tc-symbol">${tok.lo}</span>
+            <span class="tc-value">${tok.lv.toLocaleString()}</span>
+          </div>
+        `;
+        stage.appendChild(group);
+      } else {
+        const card = document.createElement('div');
+        card.className = 'token-card';
+        card.innerHTML = `
+          <span class="tc-symbol">${tok.symbol}</span>
+          <span class="tc-value">${tok.arabic !== null ? tok.arabic.toLocaleString() : ''}</span>
+        `;
+        stage.appendChild(card);
+      }
     });
 
     eqResult.textContent = result;
     eqLabel.textContent  = resultLabel.split('(')[1]?.replace(')','') || '';
 
-    const cards  = stage.querySelectorAll('.token-card');
+    const items  = stage.querySelectorAll(':scope > .token-card, :scope > .token-group');
     const pluses = stage.querySelectorAll('.token-plus');
 
     anime({
-      targets: cards,
+      targets: items,
       opacity: [0, 1],
       translateY: [14, 0],
       delay: anime.stagger(80, { start: 80 }),
@@ -394,7 +451,7 @@
       targets: equalsEl,
       opacity: [0, 1],
       translateY: [8, 0],
-      delay: 80 + cards.length * 80 + 180,
+      delay: 80 + items.length * 80 + 180,
       duration: 420,
       easing: 'easeOutCubic'
     });
@@ -460,7 +517,7 @@
   function clearInput() {
     input.value = '';
     resultEl.textContent = '—';
-    resultEl.classList.remove('pulse');
+    resultEl.classList.remove('pulse', 'result-error');
     document.getElementById('breakdown-stage').innerHTML =
       '<span class="breakdown-empty">Введіть число і натисни «Конвертувати»</span>';
     document.getElementById('breakdown-equals').style.opacity = 0;
@@ -482,9 +539,9 @@
     resultEl.textContent = '—';
     updatePlaceholder();
     renderHints(fromSel.value);
-    document.getElementById('breakdown-stage').innerHTML =
-      '<span class="breakdown-empty">Натисни «Конвертувати»</span>';
-    document.getElementById('breakdown-equals').style.opacity = 0;
+    if (input.value.trim()) {
+      doConvert();
+    }
   });
 
   async function doConvert() {
@@ -506,12 +563,17 @@
       });
       const data = await res.json();
 
-      if (data.error || !data.result || /[а-яА-ЯіІїЇєЄґҐ]/.test(data.result)) {
-        resultEl.textContent = 'Помилка';
+      if (data.error || !data.result) {
+        resultEl.textContent = data.error || 'Помилка';
+        resultEl.classList.add('result-error');
+        document.getElementById('breakdown-stage').innerHTML =
+          '<span class="breakdown-empty">Виправте введення і спробуйте ще раз</span>';
+        document.getElementById('breakdown-equals').style.opacity = 0;
         return;
       }
 
       resultEl.textContent = data.result;
+      resultEl.classList.remove('result-error');
 
       void resultEl.offsetWidth;
       resultEl.classList.add('pulse');
