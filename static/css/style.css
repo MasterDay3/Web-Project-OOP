@@ -258,6 +258,17 @@ a { color: inherit; }
     outline: none;
 }
 
+.form-error {
+    background: #fff0f0;
+    border: 1px solid #f5c6c6;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #b21f1f;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 0;
+}
+
 .accent-button {
     background: linear-gradient(135deg, #58cc02, #64e018);
     color: #0b2b1f;

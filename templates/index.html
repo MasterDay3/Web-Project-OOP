@@ -18,17 +18,17 @@
       <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
     </nav>
     {% if current_user.is_authenticated %}
-    <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a class="ghost" href="{{ url_for('dashboard') }}">Кабінет</a>
     <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
     {% else %}
     <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Реєстрація</a>
     {% endif %}
   </header>
 
   <main class="shell">
     <section class="hero" id="convert">
-      <p class="eyebrow">Roman · Arabic · Egyptian · Thai</p>
+      <p class="eyebrow">Римські · Арабські · Єгипетські · Тайські</p>
       <h1>Конвертор числових систем</h1>
     </section>
 
@@ -63,22 +63,22 @@
       <form class="glass-card converter-card" action="/convert" method="POST">
         <div class="convert-head">
           <div class="head-col">
-            <span>From</span>
+            <span>З</span>
             <select name="system_from">
-              <option value="arabic" {% if sf=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="roman" {% if sf=='roman' %}selected{% endif %}>Roman</option>
-              <option value="egyptian" {% if sf=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai" {% if sf=='thai' %}selected{% endif %}>Thai</option>
+              <option value="arabic" {% if sf=='arabic' %}selected{% endif %}>Арабські</option>
+              <option value="roman" {% if sf=='roman' %}selected{% endif %}>Римські</option>
+              <option value="egyptian" {% if sf=='egyptian' %}selected{% endif %}>Єгипетські</option>
+              <option value="thai" {% if sf=='thai' %}selected{% endif %}>Тайські</option>
             </select>
           </div>
           <button type="button" class="swap" onclick="swapSystems()">⇄</button>
           <div class="head-col">
-            <span>To</span>
+            <span>В</span>
             <select name="system_to">
-              <option value="arabic" {% if st=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="roman" {% if st=='roman' %}selected{% endif %}>Roman</option>
-              <option value="egyptian" {% if st=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai" {% if st=='thai' %}selected{% endif %}>Thai</option>
+              <option value="arabic" {% if st=='arabic' %}selected{% endif %}>Арабські</option>
+              <option value="roman" {% if st=='roman' %}selected{% endif %}>Римські</option>
+              <option value="egyptian" {% if st=='egyptian' %}selected{% endif %}>Єгипетські</option>
+              <option value="thai" {% if st=='thai' %}selected{% endif %}>Тайські</option>
             </select>
           </div>
         </div>

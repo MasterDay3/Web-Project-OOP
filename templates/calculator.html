@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Numerix · Roman Calculator</title>
+  <title>Numerix · Калькулятор</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="page-light">
@@ -15,18 +15,18 @@
       <a href="{{ url_for('calculator_page') }}" class="active">Калькулятор</a>
     </nav>
     {% if current_user.is_authenticated %}
-      <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="ghost" href="{{ url_for('dashboard') }}">Кабінет</a>
       <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
     {% else %}
       <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-      <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Реєстрація</a>
     {% endif %}
   </header>
 
   <main class="shell calc-page">
     <section class="hero">
-      <p class="eyebrow">Numeral systems</p>
-      <h1>Multi-System Numeral Calculator</h1>
+      <p class="eyebrow">Системи числення</p>
+      <h1>Калькулятор числових систем</h1>
     </section>
 
     <section class="glass-card calc-roman-card">
@@ -37,10 +37,10 @@
           <label class="calc-system">
             <span>Система</span>
             <select name="system" id="system-select">
-              <option value="roman"   {% if system=='roman' or not system %}selected{% endif %}>Roman</option>
-              <option value="arabic"  {% if system=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="egyptian"{% if system=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai"    {% if system=='thai' %}selected{% endif %}>Thai</option>
+              <option value="roman"   {% if system=='roman' or not system %}selected{% endif %}>Римські</option>
+              <option value="arabic"  {% if system=='arabic' %}selected{% endif %}>Арабські</option>
+              <option value="egyptian"{% if system=='egyptian' %}selected{% endif %}>Єгипетські</option>
+              <option value="thai"    {% if system=='thai' %}selected{% endif %}>Тайські</option>
             </select>
           </label>
         </div>

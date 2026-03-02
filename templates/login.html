@@ -25,6 +25,13 @@
           Пароль
           <input type="password" name="password" placeholder="••••••••" required>
         </label>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for msg in messages %}
+              <p class="form-error">{{ msg }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
         <button class="accent-button" type="submit">Увійти</button>
         <p class="small">
           Немає акаунта?

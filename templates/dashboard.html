@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Numerix · Dashboard</title>
+  <title>Numerix · Кабінет</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
@@ -17,7 +17,7 @@
       <a href="{{ url_for('home') }}">Конвертор</a>
       <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
       <a href="{{ url_for('task_routes.tasks_page') }}">Задачі</a>
-      <a href="{{ url_for('leaderboard_routes.leaderboard') }}">Leaderboard</a>
+      <a href="{{ url_for('leaderboard_routes.leaderboard') }}">Рейтинг</a>
     </nav>
     <a class="ghost" href="{{ url_for('profile_routes.profile') }}">Профіль</a>
     <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
@@ -25,7 +25,7 @@
 
   <main class="shell">
     <section class="hero">
-      <p class="eyebrow">Welcome back</p>
+      <p class="eyebrow">З поверненням</p>
       <h1>Привіт, {{ current_user.username }}! 👋</h1>
     </section>
 
@@ -46,7 +46,7 @@
       </div>
       <div class="glass-card db-stat-card">
         <span class="db-stat-icon">🎯</span>
-        <span class="db-stat-val">Lvl {{ current_user.level }}</span>
+        <span class="db-stat-val">Рів. {{ current_user.level }}</span>
         <span class="db-stat-lbl">Рівень</span>
       </div>
       <div class="glass-card db-stat-card">
@@ -116,7 +116,7 @@
         <a class="cta" href="{{ url_for('stats_routes.stats') }}">Переглянути</a>
       </article>
       <article class="glass-card dashboard-tile">
-        <h3>Leaderboard</h3>
+        <h3>Рейтинг</h3>
         <p>Дивись своє місце в рейтингу.</p>
         <a class="cta" href="{{ url_for('leaderboard_routes.leaderboard') }}">Відкрити</a>
       </article>
