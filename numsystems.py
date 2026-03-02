@@ -16,9 +16,9 @@ class Convertor:
 
     egyptian_numbers = [
         (1000000, '𓀼'), (100000, '𓆐'), (10000, '𓂭'),
-        (1000, '𓆼'), (100, '𓍢'), (10, '𓎆'), (1, '𓏽')
+        (1000, '𓆼'), (100, '𓍢'), (10, '𓎆'), (1, '𓏺')
     ]
-    egypt_hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼', '𓍢', '𓎆', '𓏽']
+    egypt_hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼', '𓍢', '𓎆', '𓏺']
 
     thai_numbers = [
         ('0', '๐'), ('1', '๑'), ('2', '๒'), ('3', '๓'),('4', '๔'),
@@ -38,17 +38,17 @@ class Convertor:
         >>> Convertor("1994").convert_to_roman()
         'MCMXCIV'
         >>> Convertor("4000").convert_to_roman()
-        'Number must be in range from 1 to 3999'
+        'Число має бути в діапазоні від 1 до 3999'
         >>> Convertor("abc").convert_to_roman()
-        'Invalid number input.'
+        'Невірне числове введення.'
         """
         if not str(self.value).isdigit():
-            return 'Invalid number input.'
+            return 'Невірне числове введення.'
 
         number = int(self.value)
 
         if not 0 < number < 4000:
-            return 'Number must be in range from 1 to 3999'
+            return 'Число має бути в діапазоні від 1 до 3999'
 
         roman_number = ''
 
@@ -68,16 +68,16 @@ class Convertor:
         >>> Convertor("mcmxciv").convert_roman_to_arab()
         '1994'
         >>> Convertor("IC").convert_roman_to_arab()
-        'Incorrect number entered'
+        'Некоректне число'
         >>> Convertor("123").convert_roman_to_arab()
-        'Invalid input, please enter a Roman numeral using Latin letters'
+        'Невірне введення, будь ласка введіть римське число латинськими літерами'
         """
         roman_number = str(self.value).upper()
         if not roman_number.isalpha() or not roman_number.isascii():
-            return 'Invalid input, please enter a Roman numeral using Latin letters'
+            return 'Невірне введення, будь ласка введіть римське число латинськими літерами'
         for sym in roman_number:
             if sym not in self.letters:
-                return 'Invalid input'
+                return 'Невірне введення'
 
         for i in range(len(roman_number) - 1):
             curr = roman_number[i]
@@ -97,13 +97,13 @@ class Convertor:
 
             if v_curr < v_nxt:
                 if curr == 'I' and nxt not in ['V', 'X']:
-                    return 'Incorrect number entered'
+                    return 'Некоректне число'
                 if curr == 'X' and nxt not in ['L', 'C']:
-                    return 'Incorrect number entered'
+                    return 'Некоректне число'
                 if curr == 'C' and nxt not in ['D', 'M']:
-                    return 'Incorrect number entered'
+                    return 'Некоректне число'
                 if curr in ['V', 'L', 'D']:
-                    return 'Incorrect number entered'
+                    return 'Некоректне число'
 
         arab_number = 0
 
@@ -133,10 +133,10 @@ class Convertor:
 
     def convert_to_egyptian(self):
         if not self.value.isdigit():
-            return 'Invaid input'
+            return 'Невірне введення'
         number = int(self.value)
         if number <= 0 or number >= 10000000:
-            return 'Number must be in range from 1 to 9999999'
+            return 'Число має бути в діапазоні від 1 до 9999999'
 
         result = ''
         for value, symbol in self.egyptian_numbers:
@@ -151,7 +151,7 @@ class Convertor:
         result = 0
         for char in number:
             if char not in self.egypt_hieroglyphs:
-                return 'Invalid input, no such number in egyptian numeral system'
+                return 'Невірне введення, такого числа немає в єгипетській системі числення'
         for val, sym in self.egyptian_numbers:
             result += number.count(sym) * val
         return str(result)
@@ -160,22 +160,22 @@ class Convertor:
         number = self.value.strip()
 
         if not number:
-            return 'Invalid input'
+            return 'Невірне введення'
         if number.count('-') > 1 or (number.count('-') == 1 and number[0] != '-'):
-            return 'Invalid input'
+            return 'Невірне введення'
         if number.count('.') + number.count(',') > 1:
-            return 'Invalid input'
+            return 'Невірне введення'
         if '.' in number:
             parts = number.split('.')
             if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
-                return 'Invalid input'
+                return 'Невірне введення'
         elif ',' in number:
             parts = number.split(',')
             if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
-                return 'Invalid input'
+                return 'Невірне введення'
         else:
             if not number.replace('-', '').isdigit():
-                return 'Invalid input'
+                return 'Невірне введення'
 
         for arabic, thai in self.thai_numbers:
             number = number.replace(arabic, thai)
@@ -186,27 +186,27 @@ class Convertor:
         number = self.value.strip()
         for sym in number:
             if sym not in self.thai_hieroglyphs:
-                return 'Invalid input'
+                return 'Невірне введення'
 
         for arabic, thai in self.thai_numbers:
             number = number.replace(thai, arabic)
 
         if number.count('-') > 1 or (number.count('-') == 1 and number[0] != '-'):
-            return 'Invalid input'
+            return 'Невірне введення'
         if number.count('.') + number.count(',') > 1:
-            return 'Invalid input'
+            return 'Невірне введення'
 
         if '.' in number:
             parts = number.split('.')
             if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
-                return 'Invalid input'
+                return 'Невірне введення'
         elif ',' in number:
             parts = number.split(',')
             if not parts[0].replace('-', '').isdigit() or not parts[1].isdigit():
-                return 'Invalid input'
+                return 'Невірне введення'
         else:
             if not number.replace('-', '').isdigit():
-                return 'Invalid input'
+                return 'Невірне введення'
 
         return number
 
@@ -225,12 +225,12 @@ class Calculator:
         if self.operation in self.supported_operations_for_two_nums and self.number2 is not None:
             two_nums = True
         elif self.operation in self.supported_operations_for_two_nums and self.number2 is None:
-            raise ValueError('For this operation you need 2 numbers')
+            raise ValueError('Для цієї операції потрібно 2 числа')
         elif self.operation in self.supported_operations_for_one_num and self.number2 is None:
             two_nums = False
         elif self.operation in self.supported_operations_for_one_num and self.number2 is not None:
-            raise ValueError('For this operation you need only 1 number')
-        else: raise ValueError(f"Unsupported operation '{self.operation}'")
+            raise ValueError('Для цієї операції потрібно лише 1 число')
+        else: raise ValueError(f"Непідтримувана операція '{self.operation}'")
         match self.number_system:
             case 'arabic':
                 if two_nums:
@@ -238,7 +238,7 @@ class Calculator:
                         a = float(self.number1)
                         b = float(self.number2)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '+':
                             res = a + b
@@ -265,16 +265,16 @@ class Calculator:
                             if res == int(res):
                                 res = int(res)
                         case _:
-                            return 'No such operation'
+                            return 'Такої операції не існує'
                 if not two_nums:
                     try:
                         a = float(self.number1)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '!':
                             if a != int(a):
-                                raise ValueError('Factorial is only defined for non-negative integers')
+                                raise ValueError("Факторіал визначений лише для невід'ємних цілих чисел")
                             res = math.factorial(int(a))
                             if res == int(res):
                                 res = int(res)
@@ -290,65 +290,65 @@ class Calculator:
                         a = float(a)
                         b = float(b)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '+':
                             result = a + b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case '-':
                             result = a - b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case '*':
                             result = a * b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case '/':
                             result = a / b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case 'power':
                             result = a ** b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case '%':
                             result = a % b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case _:
-                            return 'No such operation'
+                            return 'Такої операції не існує'
                 if not two_nums:
                     a = Convertor(self.number1).convert_roman_to_arab()
                     try:
                         a = float(a)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '!':
                             if a != int(a):
-                                raise ValueError('Factorial is only defined for non-negative integers')
+                                raise ValueError("Факторіал визначений лише для невід'ємних цілих чисел")
                             result = math.factorial(int(a))
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
                         case 'sqrt':
                             result = math.sqrt(a)
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_roman()
             case 'egyptian':
@@ -359,65 +359,65 @@ class Calculator:
                         a = float(a)
                         b = float(b)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '+':
                             result = a + b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
                         case '-':
                             result = a - b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
                         case '*':
                             result = a * b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
                         case '/':
                             result = a / b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
                         case 'power':
                             result = a ** b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
                         case '%':
                             result = a % b
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
                         case _:
-                            return 'No such operation'
+                            return 'Такої операції не існує'
                 if not two_nums:
                     a = Convertor(self.number1).convert_egyptian_to_arab()
                     try:
                         a = float(a)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '!':
                             if a != int(a):
-                                raise ValueError('Factorial is only defined for non-negative integers')
+                                raise ValueError("Факторіал визначений лише для невід'ємних цілих чисел")
                             result = math.factorial(int(a))
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = res = Convertor(str(result)).convert_to_egyptian()
                         case 'sqrt':
                             result = math.sqrt(a)
                             if result != int(result):
-                                raise ValueError('In this number system no float numbers')
+                                raise ValueError('У цій системі числення немає дробових чисел')
                             result = int(result)
                             res = Convertor(str(result)).convert_to_egyptian()
             case 'thai':
@@ -428,7 +428,7 @@ class Calculator:
                         a = float(a)
                         b = float(b)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '+':
                             result = a + b
@@ -461,17 +461,17 @@ class Calculator:
                                 result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
                         case _:
-                            return 'No such operation'
+                            return 'Такої операції не існує'
                 if not two_nums:
                     a = Convertor(self.number1).convert_thai_to_arab()
                     try:
                         a = float(a)
                     except ValueError as exc:
-                        raise ValueError('Incorrect input') from exc
+                        raise ValueError('Некоректне введення') from exc
                     match self.operation:
                         case '!':
                             if a != int(a):
-                                raise ValueError('Factorial is only defined for non-negative integers')
+                                raise ValueError("Факторіал визначений лише для невід'ємних цілих чисел")
                             result = math.factorial(int(a))
                             if result == int(result):
                                 result = int(result)
@@ -482,7 +482,7 @@ class Calculator:
                                 result = int(result)
                             res = Convertor(str(result)).convert_to_thai()
             case _:
-                raise TypeError('No such number system')
+                raise TypeError('Такої системи числення не існує')
         return str(res)
 
 def test():
@@ -494,8 +494,8 @@ def test():
     assert Convertor("49").convert_to_roman() == "XLIX"
     assert Convertor("1994").convert_to_roman() == "MCMXCIV"
     assert Convertor("3999").convert_to_roman() == "MMMCMXCIX"
-    assert Convertor("4000").convert_to_roman() == 'Number must be in range from 1 to 3999'
-    assert Convertor("abc").convert_to_roman() == 'Invalid number input.'
+    assert Convertor("4000").convert_to_roman() == 'Число має бути в діапазоні від 1 до 3999'
+    assert Convertor("abc").convert_to_roman() == 'Невірне числове введення.'
 
     # Тести для convert_roman_to_arab
     assert Convertor("I").convert_roman_to_arab() == "1"
@@ -507,12 +507,12 @@ def test():
     assert Convertor("ix").convert_roman_to_arab() == "9"
     assert Convertor("mcmxciv").convert_roman_to_arab() == "1994"
     
-    assert Convertor("IC").convert_roman_to_arab() == "Incorrect number entered"
-    assert Convertor("XM").convert_roman_to_arab() == "Incorrect number entered"
-    assert Convertor("VX").convert_roman_to_arab() == "Incorrect number entered"
+    assert Convertor("IC").convert_roman_to_arab() == "Некоректне число"
+    assert Convertor("XM").convert_roman_to_arab() == "Некоректне число"
+    assert Convertor("VX").convert_roman_to_arab() == "Некоректне число"
     
-    assert Convertor("123").convert_roman_to_arab() == "Invalid input, please enter a Roman numeral using Latin letters"
-    assert Convertor("ABC").convert_roman_to_arab() == "Invalid input"
+    assert Convertor("123").convert_roman_to_arab() == "Невірне введення, будь ласка введіть римське число латинськими літерами"
+    assert Convertor("ABC").convert_roman_to_arab() == "Невірне введення"
 
     # Перевірка взаємодії
     test_nums = ["1", "44", "99", "3999"]
@@ -526,29 +526,29 @@ def test():
 
     # --- EGYPTIAN TESTS ---
     # 1. Арабські -> Єгипетські
-    assert Convertor("1").convert_to_egyptian() == "𓏽"
+    assert Convertor("1").convert_to_egyptian() == "𓏺"
     assert Convertor("10").convert_to_egyptian() == "𓎆"
-    assert Convertor("12").convert_to_egyptian() == "𓎆𓏽𓏽"
-    assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏽𓏽"
-    
-    error_range = 'Number must be in range from 1 to 9999999'
+    assert Convertor("12").convert_to_egyptian() == "𓎆𓏺𓏺"
+    assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏺𓏺"
+
+    error_range = 'Число має бути в діапазоні від 1 до 9999999'
     assert Convertor("0").convert_to_egyptian() == error_range
     assert Convertor("10000000").convert_to_egyptian() == error_range
 
     # 2. Єгипетські -> Арабські
-    assert Convertor("𓏽").convert_egyptian_to_arab() == "1"
+    assert Convertor("𓏺").convert_egyptian_to_arab() == "1"
     assert Convertor("𓎆").convert_egyptian_to_arab() == "10"
-    assert Convertor("𓎆𓏽𓏽").convert_egyptian_to_arab() == "12"
-    assert Convertor("𓏽𓎆𓏽").convert_egyptian_to_arab() == "12"
-    
-    error_invalid = 'Invalid input, no such number in egyptian numeral system'
+    assert Convertor("𓎆𓏺𓏺").convert_egyptian_to_arab() == "12"
+    assert Convertor("𓏺𓎆𓏺").convert_egyptian_to_arab() == "12"
+
+    error_invalid = 'Невірне введення, такого числа немає в єгипетській системі числення'
     assert Convertor("ABC").convert_egyptian_to_arab() == error_invalid
     assert Convertor("123").convert_egyptian_to_arab() == error_invalid
 
     test_val = "1234"
     egyptian_str = Convertor(test_val).convert_to_egyptian()
     arabic_res = Convertor(egyptian_str).convert_egyptian_to_arab()
-    assert int(test_val) == arabic_res
+    assert test_val == arabic_res
 
     print("Egyptian tests done! 𓆼 ✅")
     print("-" * 30)
@@ -561,11 +561,11 @@ def test():
     assert Convertor("12.5").convert_to_thai() == "๑๒.๕"
     assert Convertor("12,5").convert_to_thai() == "๑๒,๕"
     assert Convertor("34567").convert_to_thai() == "๓๔๕๖๗"
-    assert Convertor("12.5,6").convert_to_thai() == 'Invalid input'
-    assert Convertor("--123").convert_to_thai() == 'Invalid input'
-    assert Convertor("123-").convert_to_thai() == 'Invalid input'
-    assert Convertor("12a").convert_to_thai() == 'Invalid input'
-    assert Convertor("12..5").convert_to_thai() == 'Invalid input'
+    assert Convertor("12.5,6").convert_to_thai() == 'Невірне введення'
+    assert Convertor("--123").convert_to_thai() == 'Невірне введення'
+    assert Convertor("123-").convert_to_thai() == 'Невірне введення'
+    assert Convertor("12a").convert_to_thai() == 'Невірне введення'
+    assert Convertor("12..5").convert_to_thai() == 'Невірне введення'
 
     # --- Тайські -> Арабські ---
     assert Convertor("๑").convert_thai_to_arab() == "1"
@@ -575,10 +575,10 @@ def test():
     assert Convertor("-๑๒๓").convert_thai_to_arab() == "-123"
     assert Convertor("๑๒.๕").convert_thai_to_arab() == "12.5"
     assert Convertor("๑๒,๕").convert_thai_to_arab() == "12,5"
-    assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Invalid input"
-    assert Convertor("--๑๒๓").convert_thai_to_arab() == "Invalid input"
-    assert Convertor("๑๒A").convert_thai_to_arab() == "Invalid input"
-    assert Convertor("๑๒๓-").convert_thai_to_arab() == "Invalid input"
+    assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Невірне введення"
+    assert Convertor("--๑๒๓").convert_thai_to_arab() == "Невірне введення"
+    assert Convertor("๑๒A").convert_thai_to_arab() == "Невірне введення"
+    assert Convertor("๑๒๓-").convert_thai_to_arab() == "Невірне введення"
 
     # --- Round-trip tests ---
     test_vals = ["34567", "-456", "12.75", "12,5"]
@@ -632,7 +632,7 @@ def test():
     try: Calculator('X', '/', 'III', 'roman').calculate(); assert False
     except ValueError: pass
     # від'ємний результат -> Convertor поверне рядок помилки (не ValueError)
-    assert Calculator('I', '-', 'V', 'roman').calculate() == 'Invalid number input.'
+    assert Calculator('I', '-', 'V', 'roman').calculate() == 'Невірне числове введення.'
     # невалідний ввід
     try: Calculator('123', '+', 'V', 'roman').calculate(); assert False
     except ValueError: pass
@@ -641,8 +641,8 @@ def test():
     # ── EGYPTIAN ──
     assert Calculator('𓎆𓎆', '+', '𓎆𓎆𓎆', 'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆'  # 20+30=50
     assert Calculator('𓎆',   '*', '𓎆',     'egyptian').calculate() == '𓍢'         # 10*10=100
-    assert Calculator('𓍢',   '-', '𓎆',     'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆'  # 100-10=90
-    assert Calculator('𓎆𓎆',  '/', '𓎆',     'egyptian').calculate() == '𓏽𓏽'        # 20/10=2
+    assert Calculator('𓍢',   '-', '𓎆',     'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆'  # 100-10=90 (9 tens)
+    assert Calculator('𓎆𓎆',  '/', '𓎆',     'egyptian').calculate() == '𓏺𓏺'        # 20/10=2
     assert Calculator('𓎆',   '!', number_system='egyptian').calculate() == '𓀼𓀼𓀼𓆐𓆐𓆐𓆐𓆐𓆐𓂭𓂭𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓍢𓍢'  # 10!=3628800
     assert Calculator('𓍢',   'sqrt', number_system='egyptian').calculate() == '𓎆'  # sqrt(100)=10
     # дробовий результат

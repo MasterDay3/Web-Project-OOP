@@ -1,0 +1,54 @@
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <a href="{{ url_for('home') }}" class="sidebar-brand">
+      <span class="brand-dot"></span>
+      <span class="brand-name">Numerix</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('dashboard') }}" class="sidebar-link {{ 'active' if active == 'dashboard' }}">
+        <span class="sidebar-icon">🏠</span> Кабінет
+      </a>
+      {% endif %}
+      <a href="{{ url_for('home') }}" class="sidebar-link {{ 'active' if active == 'converter' }}">
+        <span class="sidebar-icon">🔄</span> Конвертор
+      </a>
+      <a href="{{ url_for('calculator_page') }}" class="sidebar-link {{ 'active' if active == 'calculator' }}">
+        <span class="sidebar-icon">🧮</span> Калькулятор
+      </a>
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('task_routes.tasks_page') }}" class="sidebar-link {{ 'active' if active == 'tasks' }}">
+        <span class="sidebar-icon">📝</span> Задачі
+      </a>
+      <a href="{{ url_for('leaderboard_routes.leaderboard') }}" class="sidebar-link {{ 'active' if active == 'leaderboard' }}">
+        <span class="sidebar-icon">🏆</span> Рейтинг
+      </a>
+      <a href="{{ url_for('stats_routes.stats') }}" class="sidebar-link {{ 'active' if active == 'stats' }}">
+        <span class="sidebar-icon">📊</span> Статистика
+      </a>
+      <a href="{{ url_for('mistakes_routes.mistakes') }}" class="sidebar-link {{ 'active' if active == 'mistakes' }}">
+        <span class="sidebar-icon">🔁</span> Помилки
+      </a>
+      {% endif %}
+    </nav>
+  </div>
+
+  <div class="sidebar-bottom">
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('profile_routes.profile') }}" class="sidebar-link {{ 'active' if active == 'profile' }}">
+      <span class="sidebar-icon">👤</span> Профіль
+    </a>
+    <a href="{{ url_for('auth_routes.logout') }}" class="sidebar-link sidebar-logout">
+      <span class="sidebar-icon">🚪</span> Вийти
+    </a>
+    {% else %}
+    <a href="{{ url_for('auth_routes.login') }}" class="sidebar-link">
+      <span class="sidebar-icon">🔑</span> Увійти
+    </a>
+    <a href="{{ url_for('auth_routes.register') }}" class="sidebar-link sidebar-register">
+      <span class="sidebar-icon">✨</span> Реєстрація
+    </a>
+    {% endif %}
+  </div>
+</aside>

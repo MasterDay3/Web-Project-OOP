@@ -8,19 +8,8 @@
 </head>
 
 <body class="page-light">
-    <header class="nav-bar">
-        <div class="brand">
-            <span class="brand-dot"></span>
-            <span class="brand-name">Numerix</span>
-        </div>
-        <nav class="nav-links">
-            <a href="{{ url_for('home') }}">Конвертор</a>
-            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
-            <a href="{{ url_for('task_routes.tasks_page') }}" class="active">Задачі</a>
-        </nav>
-        <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
-        <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
-    </header>
+    {% set active = 'tasks' %}
+    {% include 'partials/sidebar.html' %}
 
     <main class="shell">
         <section class="hero">
@@ -34,19 +23,19 @@
                 <label class="setting-group">
                     <span>Система</span>
                     <select id="system-select">
-                        <option value="roman">Roman 🏛️</option>
-                        <option value="arabic">Arabic 🔢</option>
-                        <option value="egyptian">Egyptian 𓂀</option>
-                        <option value="thai">Thai 🇹🇭</option>
-                        <option value="binary">Binary 💻</option>
+                        <option value="roman">Римські 🏛️</option>
+                        <option value="arabic">Арабські 🔢</option>
+                        <option value="egyptian">Єгипетські 𓂀</option>
+                        <option value="thai">Тайські 🇹🇭</option>
+                        <option value="binary">Двійкові 💻</option>
                     </select>
                 </label>
                 <label class="setting-group">
                     <span>Складність</span>
                     <select id="difficulty-select">
-                        <option value="easy">Easy (1–20)</option>
-                        <option value="medium">Medium (21–100)</option>
-                        <option value="hard">Hard (101–3999)</option>
+                        <option value="easy">Легко (1–20)</option>
+                        <option value="medium">Середньо (21–100)</option>
+                        <option value="hard">Складно (101–3999)</option>
                     </select>
                 </label>
                 <button class="cta" id="start-btn">Почати</button>
