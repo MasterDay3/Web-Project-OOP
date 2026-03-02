@@ -148,8 +148,11 @@
         </div>
 
         <div class="convert-body">
-          <input class="side-input" id="value-input" type="text"
-                 placeholder="Введіть число…" autocomplete="off">
+          <div class="input-wrap">
+            <input class="side-input" id="value-input" type="text"
+                   placeholder="Введіть число…" autocomplete="off">
+            <button type="button" class="input-clear" id="clear-btn" title="Очистити">×</button>
+          </div>
           <div class="side-divider"></div>
           <div class="result-view" id="result-view">—</div>
         </div>
@@ -452,7 +455,22 @@
     input.placeholder = placeholders[fromSel.value] || 'Введіть число…';
   }
 
-  fromSel.addEventListener('change', updatePlaceholder);
+  const clearBtn = document.getElementById('clear-btn');
+
+  function clearInput() {
+    input.value = '';
+    resultEl.textContent = '—';
+    resultEl.classList.remove('pulse');
+    document.getElementById('breakdown-stage').innerHTML =
+      '<span class="breakdown-empty">Введіть число і натисни «Конвертувати»</span>';
+    document.getElementById('breakdown-equals').style.opacity = 0;
+    input.focus();
+  }
+
+  clearBtn.addEventListener('click', clearInput);
+
+  fromSel.addEventListener('change', () => { clearInput(); updatePlaceholder(); renderHints(fromSel.value); });
+  toSel.addEventListener('change', clearInput);
   updatePlaceholder();
 
   swapBtn.addEventListener('click', () => {
@@ -516,7 +534,6 @@
     input.focus();
   });
 
-  fromSel.addEventListener('change', () => renderHints(fromSel.value));
   renderHints(fromSel.value);
   </script>
 </body>

@@ -181,6 +181,9 @@ a { color: inherit; }
     border-radius: 16px;
     overflow: hidden;
 }
+.input-wrap {
+    position: relative;
+}
 .side-input {
     border: none; font-size: 28px; font-weight: 700; padding: 26px; outline: none;
     background: #fff; width: 100%; text-align: center;
@@ -190,6 +193,31 @@ a { color: inherit; }
     opacity: 0.6;
     font-weight: 700;
     font-size: 24px;
+}
+.input-clear {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #6b7280;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    place-items: center;
+    line-height: 1;
+    transition: all .15s;
+}
+.input-clear:hover {
+    background: var(--accent);
+    color: #fff;
+}
+.input-wrap:has(.side-input:not(:placeholder-shown)) .input-clear {
+    display: grid;
 }
 
 .side-divider { width: 1px; background: var(--border); }
