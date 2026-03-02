@@ -128,7 +128,9 @@ class Convertor:
                 arab_number -= current_value
             else:
                 arab_number += current_value
-
+        back = Convertor(str(arab_number)).convert_to_roman()
+        if back != roman_number:
+            return 'Неправильний ввід'
         return str(arab_number)
 
     def convert_to_egyptian(self):
