@@ -41,36 +41,135 @@ app.register_blueprint(task_routes)
 app.register_blueprint(leaderboard_routes)
 
 
-def parse_calc_expression(expr: str):
-    # Парсер простих виразів для римського калькулятора
-    if not expr:
-        return None
+def eval_calc_expression(expr: str, system: str):
+    """Обчислює вираз з дужками і кількома операторами у заданій системі числення.
+    Повертає (result_str, error_str) — одне з двох буде None."""
+    if not expr or not expr.strip():
+        return None, "Не вдалося розібрати вираз"
+
     s = expr.strip().replace(" ", "")
-    if not s:
-        return None
-    if s.endswith("!"):
-        return s[:-1], "!", None
-    if s.startswith("√"):
-        return s[1:], "sqrt", None
-    if s.lower().startswith("sqrt"):
-        return s[4:], "sqrt", None
-    ops_map = {
-        "+": "+",
-        "-": "-",
-        "*": "*",
-        "x": "*",
-        "×": "*",
-        "/": "/",
-        "÷": "/",
-        "%": "%",
-        "^": "power",
+
+    digit_chars = {
+        "roman": set("MDCLXVImdclxvi"),
+        "arabic": set("0123456789."),
+        "egyptian": set("𓀼𓆐𓂭𓆼𓍢𓎆𓏺"),
+        "thai": set("๐๑๒๓๔๕๖๗๘๙."),
     }
-    for i, ch in enumerate(s):
-        if ch in ops_map:
-            left, right = s[:i], s[i + 1 :]
-            if left and right:
-                return left, ops_map[ch], right
-    return None
+    digits = digit_chars.get(system, digit_chars["arabic"])
+    ops = {"+", "-", "×", "÷"}
+
+    # ── Токенізація ──
+    tokens = []
+    i = 0
+    while i < len(s):
+        ch = s[i]
+        if ch in digits:
+            j = i
+            while j < len(s) and s[j] in digits:
+                j += 1
+            tokens.append(("NUM", s[i:j]))
+            i = j
+        elif ch in ops:
+            tokens.append(("OP", ch))
+            i += 1
+        elif ch == "(":
+            tokens.append(("LPAREN", "("))
+            i += 1
+        elif ch == ")":
+            tokens.append(("RPAREN", ")"))
+            i += 1
+        else:
+            return None, f"Невідомий символ: {ch}"
+
+    if not tokens:
+        return None, "Не вдалося розібрати вираз"
+
+    # ── Конвертація числового токена в float ──
+    def to_arabic(num_str):
+        if system == "roman":
+            r = Convertor(num_str).convert_roman_to_arab()
+        elif system == "egyptian":
+            r = Convertor(num_str).convert_egyptian_to_arab()
+        elif system == "thai":
+            r = Convertor(num_str).convert_thai_to_arab()
+        else:
+            r = num_str
+        return float(r)
+
+    # ── Shunting-yard ──
+    precedence = {"+": 1, "-": 1, "×": 2, "÷": 2}
+    output = []
+    op_stack = []
+
+    for tok_type, tok_val in tokens:
+        if tok_type == "NUM":
+            try:
+                output.append(to_arabic(tok_val))
+            except (ValueError, TypeError):
+                return None, f"Невірне число: {tok_val}"
+        elif tok_type == "OP":
+            while (
+                op_stack
+                and op_stack[-1] != "("
+                and precedence.get(op_stack[-1], 0) >= precedence.get(tok_val, 0)
+            ):
+                output.append(op_stack.pop())
+            op_stack.append(tok_val)
+        elif tok_type == "LPAREN":
+            op_stack.append("(")
+        elif tok_type == "RPAREN":
+            while op_stack and op_stack[-1] != "(":
+                output.append(op_stack.pop())
+            if not op_stack:
+                return None, "Незбалансовані дужки"
+            op_stack.pop()
+
+    while op_stack:
+        if op_stack[-1] == "(":
+            return None, "Незбалансовані дужки"
+        output.append(op_stack.pop())
+
+    # ── Обчислення RPN ──
+    stack = []
+    for item in output:
+        if isinstance(item, float):
+            stack.append(item)
+        else:
+            if len(stack) < 2:
+                return None, "Не вдалося розібрати вираз"
+            b, a = stack.pop(), stack.pop()
+            if item == "+":
+                stack.append(a + b)
+            elif item == "-":
+                stack.append(a - b)
+            elif item == "×":
+                stack.append(a * b)
+            elif item == "÷":
+                if b == 0:
+                    return None, "Ділення на нуль"
+                stack.append(a / b)
+
+    if len(stack) != 1:
+        return None, "Не вдалося розібрати вираз"
+
+    result = stack[0]
+    if isinstance(result, float) and result == int(result):
+        result = int(result)
+
+    # ── Конвертація результату назад ──
+    if system == "arabic":
+        return str(result), None
+    if system in ("roman", "egyptian"):
+        if isinstance(result, float) and result != int(result):
+            return None, "У цій системі немає дробових чисел"
+        result = int(result)
+    if system == "roman":
+        return str(Convertor(str(result)).convert_to_roman()), None
+    if system == "egyptian":
+        return str(Convertor(str(result)).convert_to_egyptian()), None
+    if system == "thai":
+        return str(Convertor(str(result)).convert_to_thai()), None
+    return str(result), None
 
 
 @app.route("/dashboard")
@@ -155,7 +254,12 @@ def api_convert():
             arabic_val = str(to_arabic[system_from](conv))
             result = from_arabic[system_to](Convertor(arabic_val))
 
-        return jsonify({"result": str(result), "error": None})
+        result_str = str(result)
+        # Convertor methods return Ukrainian error strings instead of raising
+        import re
+        if re.search(r'[а-яА-ЯіІїЇєЄґҐ]', result_str):
+            return jsonify({"result": None, "error": result_str})
+        return jsonify({"result": result_str, "error": None})
     except Exception as e:
         return jsonify({"result": None, "error": str(e)})
 
@@ -190,16 +294,10 @@ def calculator_page():
     if request.method == "POST":
         expr = request.form.get("expr", "")
         system = request.form.get("system", "roman")
-        parsed = parse_calc_expression(expr)
-        if not parsed:
-            calc_error = "Не вдалося розібрати вираз"
-        else:
-            n1, op, n2 = parsed
-            try:
-                calc = Calculator(n1, op, n2, system)
-                calc_result = calc.calculate()
-            except Exception as e:
-                calc_error = f"Помилка: {e}"
+        try:
+            calc_result, calc_error = eval_calc_expression(expr, system)
+        except Exception as e:
+            calc_error = f"Помилка: {e}"
     return render_template(
         "calculator.html",
         expr=expr,
