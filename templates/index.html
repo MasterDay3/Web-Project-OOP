@@ -159,6 +159,11 @@
         </div>
       </div>
 
+      <!-- Hint buttons -->
+      <div class="glass-card breakdown" id="hint-card" style="padding: 18px 24px;">
+        <div class="hint-symbols" id="hint-symbols"></div>
+      </div>
+
       <!-- Animated breakdown card -->
       <div class="glass-card breakdown" id="breakdown-card">
         <div class="breakdown-header">
@@ -190,8 +195,11 @@
 
   const EGYPTIAN_TABLE = [
     [1000000,'𓀼'],[100000,'𓆐'],[10000,'𓂭'],
-    [1000,'𓆼'],[100,'𓍢'],[10,'𓎆'],[1,'𓏽']
+    [1000,'𓆼'],[100,'𓍢'],[10,'𓎆'],[1,'𓏺']
   ];
+
+  const EGYPTIAN_VALS = {'𓀼':1000000,'𓆐':100000,'𓂭':10000,'𓆼':1000,'𓍢':100,'𓎆':10,'𓏺':1};
+  const THAI_DIGITS   = {'๐':0,'๑':1,'๒':2,'๓':3,'๔':4,'๕':5,'๖':6,'๗':7,'๘':8,'๙':9};
 
   const SYSTEM_NAMES = {
     arabic: 'Арабські', roman: 'Римські',
@@ -253,26 +261,65 @@
     });
   }
 
+  function tokensEgyptianToArabic(str) {
+    const tokens = [];
+    for (const ch of str) {
+      const val = EGYPTIAN_VALS[ch];
+      if (val !== undefined) tokens.push({ symbol: ch, arabic: val });
+    }
+    return tokens;
+  }
+
+  function tokensThaiToArabic(str) {
+    const digits = [...str].filter(ch => THAI_DIGITS[ch] !== undefined);
+    const len = digits.length;
+    return digits.map((d, i) => {
+      const place = Math.pow(10, len - 1 - i);
+      const val = THAI_DIGITS[d] * place;
+      return { symbol: d, arabic: val };
+    });
+  }
+
+  function getArabicFromSource(fromSys, inputVal) {
+    if (fromSys === 'arabic') return parseInt(inputVal);
+    if (fromSys === 'roman') return tokensRomanToArabic(inputVal).reduce((s, t) => s + t.arabic, 0);
+    if (fromSys === 'egyptian') return tokensEgyptianToArabic(inputVal).reduce((s, t) => s + t.arabic, 0);
+    if (fromSys === 'thai') return tokensThaiToArabic(inputVal).reduce((s, t) => s + t.arabic, 0);
+    return 0;
+  }
+
   // ── Core breakdown dispatcher ──────────────────────────────────────────────
   function computeTokens(fromSys, toSys, inputVal, result) {
     try {
-      if (fromSys === 'arabic' && toSys === 'roman') {
-        const n = parseInt(inputVal);
-        if (isNaN(n) || n < 1 || n > 3999) return null;
+      // → Arabic: show source decomposition
+      if (toSys === 'arabic') {
+        if (fromSys === 'roman') {
+          const toks = tokensRomanToArabic(inputVal);
+          return toks.length ? { tokens: toks, resultLabel: result + ' (Арабські)' } : null;
+        }
+        if (fromSys === 'egyptian') {
+          const toks = tokensEgyptianToArabic(inputVal);
+          return toks.length ? { tokens: toks, resultLabel: result + ' (Арабські)' } : null;
+        }
+        if (fromSys === 'thai') {
+          const toks = tokensThaiToArabic(inputVal);
+          return toks.length ? { tokens: toks, resultLabel: result + ' (Арабські)' } : null;
+        }
+      }
+
+      // From Arabic or cross-system: compute arabic value, show result composition
+      const n = getArabicFromSource(fromSys, inputVal);
+      if (!n || n < 1) return null;
+
+      if (toSys === 'roman') {
+        if (n > 3999) return null;
         return { tokens: tokensArabicToRoman(n), resultLabel: result + ' (Римські)' };
       }
-      if (fromSys === 'roman' && toSys === 'arabic') {
-        const toks = tokensRomanToArabic(inputVal);
-        if (!toks.length) return null;
-        return { tokens: toks, resultLabel: result + ' (Арабські)' };
-      }
-      if (fromSys === 'arabic' && toSys === 'egyptian') {
-        const n = parseInt(inputVal);
-        if (isNaN(n) || n < 1) return null;
+      if (toSys === 'egyptian') {
         return { tokens: tokensArabicToEgyptian(n), resultLabel: result + ' (Єгипетські)' };
       }
-      if (fromSys === 'arabic' && toSys === 'thai') {
-        return { tokens: tokensArabicToThai(inputVal), resultLabel: result + ' (Тайські)' };
+      if (toSys === 'thai') {
+        return { tokens: tokensArabicToThai(String(n)), resultLabel: result + ' (Тайські)' };
       }
     } catch(e) {}
     return null;
@@ -350,11 +397,47 @@
     });
   }
 
+  // ── Hint buttons ─────────────────────────────────────────────────────────
+  const hints = {
+    roman: [
+      { sym: 'I', val: '1' }, { sym: 'V', val: '5' },
+      { sym: 'X', val: '10' }, { sym: 'L', val: '50' },
+      { sym: 'C', val: '100' }, { sym: 'D', val: '500' },
+      { sym: 'M', val: '1000' }
+    ],
+    arabic: [
+      { sym: '0' }, { sym: '1' }, { sym: '2' }, { sym: '3' }, { sym: '4' },
+      { sym: '5' }, { sym: '6' }, { sym: '7' }, { sym: '8' }, { sym: '9' }
+    ],
+    egyptian: [
+      { sym: '𓏺', val: '1' }, { sym: '𓎆', val: '10' },
+      { sym: '𓍢', val: '100' }, { sym: '𓆼', val: '1 000' },
+      { sym: '𓂭', val: '10 000' }, { sym: '𓆐', val: '100 000' },
+      { sym: '𓀼', val: '1 000 000' }
+    ],
+    thai: [
+      { sym: '๐', val: '0' }, { sym: '๑', val: '1' },
+      { sym: '๒', val: '2' }, { sym: '๓', val: '3' },
+      { sym: '๔', val: '4' }, { sym: '๕', val: '5' },
+      { sym: '๖', val: '6' }, { sym: '๗', val: '7' },
+      { sym: '๘', val: '8' }, { sym: '๙', val: '9' }
+    ]
+  };
+
+  const hintSymbols = document.getElementById('hint-symbols');
+
+  function renderHints(system) {
+    const list = hints[system] || hints.roman;
+    hintSymbols.innerHTML = list.map(s =>
+      `<button type="button" class="hint-btn" data-sym="${s.sym}">${s.sym}${s.val ? `<span>${s.val}</span>` : ''}</button>`
+    ).join('');
+  }
+
   // ── Converter logic ────────────────────────────────────────────────────────
   const placeholders = {
     roman: 'XIV · MCMXCIX…',
     arabic: '1 · 42 · 1994…',
-    egyptian: '𓆼𓍢𓎆𓏽…',
+    egyptian: '𓆼𓍢𓎆𓏺…',
     thai: '๑๒๓๔…'
   };
 
@@ -380,6 +463,7 @@
     }
     resultEl.textContent = '—';
     updatePlaceholder();
+    renderHints(fromSel.value);
     document.getElementById('breakdown-stage').innerHTML =
       '<span class="breakdown-empty">Натисни «Конвертувати»</span>';
     document.getElementById('breakdown-equals').style.opacity = 0;
@@ -404,7 +488,7 @@
       });
       const data = await res.json();
 
-      if (data.error) {
+      if (data.error || !data.result || /[а-яА-ЯіІїЇєЄґҐ]/.test(data.result)) {
         resultEl.textContent = 'Помилка';
         return;
       }
@@ -423,6 +507,17 @@
 
   convBtn.addEventListener('click', doConvert);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') doConvert(); });
+
+  // ── Hint click & init ────────────────────────────────────────────────────
+  hintSymbols.addEventListener('click', (e) => {
+    const btn = e.target.closest('.hint-btn');
+    if (!btn) return;
+    input.value += btn.dataset.sym;
+    input.focus();
+  });
+
+  fromSel.addEventListener('change', () => renderHints(fromSel.value));
+  renderHints(fromSel.value);
   </script>
 </body>
 </html>

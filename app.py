@@ -131,15 +131,31 @@ def api_convert():
     system_to = data.get("system_to", "")
     try:
         conv = Convertor(value)
-        match (system_from, system_to):
-            case ("arabic", "roman"):   result = conv.convert_to_roman()
-            case ("roman", "arabic"):   result = conv.convert_roman_to_arab()
-            case ("arabic", "egyptian"):result = conv.convert_to_egyptian()
-            case ("egyptian", "arabic"):result = conv.convert_egyptian_to_arab()
-            case ("arabic", "thai"):    result = conv.convert_to_thai()
-            case ("thai", "arabic"):    result = conv.convert_thai_to_arab()
-            case _:                     result = "Ця комбінація ще не реалізована"
-        return jsonify({"result": result, "error": None})
+
+        # Direct conversions from/to Arabic
+        to_arabic = {
+            "roman":    lambda c: c.convert_roman_to_arab(),
+            "egyptian": lambda c: c.convert_egyptian_to_arab(),
+            "thai":     lambda c: c.convert_thai_to_arab(),
+        }
+        from_arabic = {
+            "roman":    lambda c: c.convert_to_roman(),
+            "egyptian": lambda c: c.convert_to_egyptian(),
+            "thai":     lambda c: c.convert_to_thai(),
+        }
+
+        if system_from == system_to:
+            result = value
+        elif system_from == "arabic":
+            result = from_arabic[system_to](conv)
+        elif system_to == "arabic":
+            result = to_arabic[system_from](conv)
+        else:
+            # Cross-system: chain through Arabic
+            arabic_val = str(to_arabic[system_from](conv))
+            result = from_arabic[system_to](Convertor(arabic_val))
+
+        return jsonify({"result": str(result), "error": None})
     except Exception as e:
         return jsonify({"result": None, "error": str(e)})
 
