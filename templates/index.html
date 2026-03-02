@@ -1,13 +1,119 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
   <meta charset="UTF-8">
   <title>Numerix · Конвертор</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <style>
+    /* ── Breakdown panel ─────────────────────────────── */
+    .breakdown {
+      padding: 28px 24px 32px;
+      display: grid;
+      gap: 20px;
+    }
+    .breakdown-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .breakdown-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+    }
+    .breakdown-dir {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: #f3f4f6;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
 
+    /* Token row */
+    .breakdown-stage {
+      min-height: 90px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .token-card {
+      display: grid;
+      gap: 4px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(14px);
+      background: #fff;
+      border: 1.5px solid rgba(178,31,31,0.15);
+      border-radius: 14px;
+      padding: 12px 16px;
+      min-width: 64px;
+    }
+    .token-card .tc-symbol {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .token-card .tc-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .token-plus {
+      font-size: 20px;
+      font-weight: 800;
+      color: #d1d5db;
+      align-self: center;
+      opacity: 0;
+    }
+
+    /* Equals row */
+    .breakdown-equals {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .eq-arrow {
+      font-size: 20px;
+      color: var(--accent);
+    }
+    .eq-result {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .eq-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Empty state */
+    .breakdown-empty {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 10px 0;
+    }
+
+    /* Subtle pulse on result input when updated */
+    @keyframes resultPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(178,31,31,0.35); }
+      60%  { box-shadow: 0 0 0 10px rgba(178,31,31,0); }
+      100% { box-shadow: none; }
+    }
+    .result-view.pulse {
+      animation: resultPulse 0.55s ease-out;
+    }
+  </style>
+</head>
 <body class="page-light">
+
   <header class="nav-bar">
     <div class="brand">
       <span class="brand-dot"></span>
@@ -18,11 +124,11 @@
       <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
     </nav>
     {% if current_user.is_authenticated %}
-    <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
-    <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+      <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
     {% else %}
-    <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+      <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+      <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
     {% endif %}
   </header>
 
@@ -32,153 +138,324 @@
       <h1>Конвертор числових систем</h1>
     </section>
 
-    {% set sf = system_from or 'roman' %}
-    {% set st = system_to or 'arabic' %}
-    {% set placeholder_from = {
-    'roman': 'I · V · X · L · C · D · M',
-    'arabic': '0 1 2 3 4 5 6 7 8 9',
-    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    }[sf] %}
-    {% set placeholder_to = {
-    'roman': 'I · V · X · L · C · D · M',
-    'arabic': '0 1 2 3 4 5 6 7 8 9',
-    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    }[st] %}
-    {% set placeholder_from = {
-    'roman': 'I · V · X · L · C · D · M',
-    'arabic': '0 1 2 3 4 5 6 7 8 9',
-    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    }[sf] %}
-    {% set placeholder_to = {
-    'roman': 'I · V · X · L · C · D · M',
-    'arabic': '0 1 2 3 4 5 6 7 8 9',
-    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    }[st] %}
-
     <section class="converter">
-      <form class="glass-card converter-card" action="/convert" method="POST">
+      <!-- Converter card -->
+      <div class="glass-card converter-card">
         <div class="convert-head">
           <div class="head-col">
             <span>From</span>
-            <select name="system_from">
-              <option value="arabic" {% if sf=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="roman" {% if sf=='roman' %}selected{% endif %}>Roman</option>
-              <option value="egyptian" {% if sf=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai" {% if sf=='thai' %}selected{% endif %}>Thai</option>
+            <select id="system_from">
+              <option value="arabic">Arabic</option>
+              <option value="roman" selected>Roman</option>
+              <option value="egyptian">Egyptian</option>
+              <option value="thai">Thai</option>
             </select>
           </div>
-          <button type="button" class="swap" onclick="swapSystems()">⇄</button>
+          <button type="button" class="swap" id="swap-btn">⇄</button>
           <div class="head-col">
             <span>To</span>
-            <select name="system_to">
-              <option value="arabic" {% if st=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="roman" {% if st=='roman' %}selected{% endif %}>Roman</option>
-              <option value="egyptian" {% if st=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai" {% if st=='thai' %}selected{% endif %}>Thai</option>
+            <select id="system_to">
+              <option value="arabic" selected>Arabic</option>
+              <option value="roman">Roman</option>
+              <option value="egyptian">Egyptian</option>
+              <option value="thai">Thai</option>
             </select>
           </div>
         </div>
 
         <div class="convert-body">
-          <input class="side-input" id="value-input" type="text" name="value" value="{{ value or '' }}"
-            placeholder="{{ placeholder_from }}" required>
+          <input class="side-input" id="value-input" type="text"
+                 placeholder="Введіть число…" autocomplete="off">
           <div class="side-divider"></div>
-          <div class="result-view" id="result-view" {% if result is not none %}data-locked="1" {% endif %}>{{ result if
-            result is not none else placeholder_to }}</div>
+          <div class="result-view" id="result-view">—</div>
         </div>
 
         <div class="convert-actions">
-          <button class="cta" type="submit">Конвертувати</button>
+          <button class="cta" id="convert-btn">Конвертувати</button>
         </div>
-      </form>
+      </div>
 
-      {% if sf == 'roman' %}
-      <section class="glass-card breakdown">
-        <h3>{{ value or placeholder_from }}</h3>
-        <div class="break-grid">
-          {% if value and st == 'arabic' %}
-          <div>
-            <p class="token">M</p>
-            <p class="token-sub">1000</p>
-          </div>
-          <div>
-            <p class="token">DCC</p>
-            <p class="token-sub">700</p>
-          </div>
-          <div>
-            <p class="token">X</p>
-            <p class="token-sub">10</p>
-          </div>
-          <div>
-            <p class="token">IV</p>
-            <p class="token-sub">4</p>
-          </div>
-          {% else %}
-          <div>
-            <p class="token">I</p>
-            <p class="token-sub">1</p>
-          </div>
-          <div>
-            <p class="token">V</p>
-            <p class="token-sub">5</p>
-          </div>
-          <div>
-            <p class="token">X</p>
-            <p class="token-sub">10</p>
-          </div>
-          <div>
-            <p class="token">L</p>
-            <p class="token-sub">50</p>
-          </div>
-          {% endif %}
+      <!-- Animated breakdown card -->
+      <div class="glass-card breakdown" id="breakdown-card">
+        <div class="breakdown-header">
+          <h3 class="breakdown-title">Розбивка</h3>
+          <span class="breakdown-dir" id="breakdown-dir"></span>
         </div>
-        <p class="break-total">{{ result or placeholder_to }}</p>
-      </section>
-      {% endif %}
+
+        <div class="breakdown-stage" id="breakdown-stage">
+          <span class="breakdown-empty">Введіть число і натисни «Конвертувати»</span>
+        </div>
+
+        <div class="breakdown-equals" id="breakdown-equals">
+          <span class="eq-arrow">＝</span>
+          <span class="eq-result" id="eq-result"></span>
+          <span class="eq-label" id="eq-label"></span>
+        </div>
+      </div>
     </section>
   </main>
 
   <script>
-    const placeholders = {
-      roman: 'I · V · X · L · C · D · M',
-      arabic: '0 1 2 3 4 5 6 7 8 9',
-      egyptian: '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-      thai: '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    };
+  // ── Numeral data ───────────────────────────────────────────────────────────
+  const ROMAN_TABLE = [
+    [1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],
+    [100,"C"],[90,"XC"],[50,"L"],[40,"XL"],
+    [10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]
+  ];
+  const ROMAN_VALS = {M:1000,D:500,C:100,L:50,X:10,V:5,I:1};
 
-    const fromSel = document.querySelector('select[name="system_from"]');
-    const toSel = document.querySelector('select[name="system_to"]');
-    const valueInput = document.getElementById('value-input');
-    const resultView = document.getElementById('result-view');
+  const EGYPTIAN_TABLE = [
+    [1000000,'𓀼'],[100000,'𓆐'],[10000,'𓂭'],
+    [1000,'𓆼'],[100,'𓍢'],[10,'𓎆'],[1,'𓏽']
+  ];
 
-    function swapSystems() {
-      const tmp = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
-      clearResult();
-      updatePlaceholders();
-    }
+  const SYSTEM_NAMES = {
+    arabic: 'Arabic', roman: 'Roman',
+    egyptian: 'Egyptian', thai: 'Thai'
+  };
 
-    function updatePlaceholders() {
-      valueInput.placeholder = placeholders[fromSel.value] || '';
-      if (!resultView.dataset.locked) {
-        resultView.textContent = placeholders[toSel.value] || '';
+  // ── Breakdown computers ────────────────────────────────────────────────────
+
+  /** Returns [{symbol, arabic}] tokens for arabic → roman */
+  function tokensArabicToRoman(num) {
+    const tokens = [];
+    for (const [val, sym] of ROMAN_TABLE) {
+      const cnt = Math.floor(num / val);
+      if (cnt > 0) {
+        tokens.push({ symbol: sym.repeat(cnt), arabic: val * cnt });
+        num %= val;
       }
     }
+    return tokens;
+  }
 
-    function clearResult() {
-      delete resultView.dataset.locked;
-      resultView.textContent = placeholders[toSel.value] || '';
+  /** Returns [{symbol, arabic, subtract}] tokens for roman → arabic */
+  function tokensRomanToArabic(roman) {
+    const str = roman.toUpperCase();
+    const tokens = [];
+    let i = 0;
+    while (i < str.length) {
+      const curr = ROMAN_VALS[str[i]] || 0;
+      const next = i+1 < str.length ? (ROMAN_VALS[str[i+1]] || 0) : 0;
+      if (curr < next) {
+        tokens.push({ symbol: str[i]+str[i+1], arabic: next - curr, subtract: false });
+        i += 2;
+      } else {
+        tokens.push({ symbol: str[i], arabic: curr, subtract: false });
+        i++;
+      }
+    }
+    return tokens;
+  }
+
+  /** Returns [{symbol, arabic}] tokens for arabic → egyptian */
+  function tokensArabicToEgyptian(num) {
+    const tokens = [];
+    for (const [val, sym] of EGYPTIAN_TABLE) {
+      const cnt = Math.floor(num / val);
+      if (cnt > 0) {
+        tokens.push({ symbol: sym.repeat(cnt), arabic: val * cnt });
+        num %= val;
+      }
+    }
+    return tokens;
+  }
+
+  /** Returns [{symbol, arabic}] tokens for arabic → thai */
+  function tokensArabicToThai(numStr) {
+    // break digit-by-digit with positional values
+    const digits = numStr.replace('-','').split('');
+    const len = digits.length;
+    return digits.map((d, i) => {
+      const place = Math.pow(10, len - 1 - i);
+      const val = parseInt(d) * place;
+      const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[parseInt(d)];
+      return { symbol: thaiDigit, arabic: val === 0 ? 0 : val };
+    });
+  }
+
+  /** Best-effort generic fallback: no breakdown, just show result */
+  function tokensGeneric(inputVal, result) {
+    return [{ symbol: inputVal, arabic: null, direct: true, result }];
+  }
+
+  // ── Core breakdown dispatcher ──────────────────────────────────────────────
+  function computeTokens(fromSys, toSys, inputVal, result) {
+    try {
+      if (fromSys === 'arabic' && toSys === 'roman') {
+        const n = parseInt(inputVal);
+        if (isNaN(n) || n < 1 || n > 3999) return null;
+        return { tokens: tokensArabicToRoman(n), inputLabel: inputVal + ' (Arabic)', resultLabel: result + ' (Roman)' };
+      }
+      if (fromSys === 'roman' && toSys === 'arabic') {
+        const toks = tokensRomanToArabic(inputVal);
+        if (!toks.length) return null;
+        return { tokens: toks, inputLabel: inputVal + ' (Roman)', resultLabel: result + ' (Arabic)' };
+      }
+      if (fromSys === 'arabic' && toSys === 'egyptian') {
+        const n = parseInt(inputVal);
+        if (isNaN(n) || n < 1) return null;
+        return { tokens: tokensArabicToEgyptian(n), inputLabel: inputVal + ' (Arabic)', resultLabel: result + ' (Egyptian)' };
+      }
+      if (fromSys === 'arabic' && toSys === 'thai') {
+        return { tokens: tokensArabicToThai(inputVal), inputLabel: inputVal + ' (Arabic)', resultLabel: result + ' (Thai)' };
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  // ── Animation ──────────────────────────────────────────────────────────────
+  function renderBreakdown(fromSys, toSys, inputVal, result) {
+    const stage = document.getElementById('breakdown-stage');
+    const equalsEl = document.getElementById('breakdown-equals');
+    const eqResult = document.getElementById('eq-result');
+    const eqLabel  = document.getElementById('eq-label');
+    const dirEl    = document.getElementById('breakdown-dir');
+
+    dirEl.textContent = `${SYSTEM_NAMES[fromSys]} → ${SYSTEM_NAMES[toSys]}`;
+
+    const computed = computeTokens(fromSys, toSys, inputVal, result);
+
+    if (!computed) {
+      stage.innerHTML = '<span class="breakdown-empty">Розбивка для цієї пари систем поки не підтримується.</span>';
+      equalsEl.style.opacity = 0;
+      return;
     }
 
-    fromSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
-    toSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
-    valueInput?.addEventListener('input', () => { clearResult(); });
+    const { tokens, inputLabel, resultLabel } = computed;
 
-    updatePlaceholders();
+    // Build token cards HTML
+    stage.innerHTML = '';
+    equalsEl.style.opacity = 0;
+
+    tokens.forEach((tok, idx) => {
+      // Plus sign between tokens
+      if (idx > 0) {
+        const plus = document.createElement('span');
+        plus.className = 'token-plus';
+        plus.textContent = '+';
+        stage.appendChild(plus);
+      }
+      const card = document.createElement('div');
+      card.className = 'token-card';
+      card.innerHTML = `
+        <span class="tc-symbol">${tok.symbol}</span>
+        <span class="tc-value">${tok.arabic !== null ? tok.arabic.toLocaleString() : ''}</span>
+      `;
+      stage.appendChild(card);
+    });
+
+    eqResult.textContent = result;
+    eqLabel.textContent  = resultLabel.split('(')[1]?.replace(')','') || '';
+
+    // Animate tokens in stagger
+    const cards  = stage.querySelectorAll('.token-card');
+    const pluses = stage.querySelectorAll('.token-plus');
+
+    anime({
+      targets: cards,
+      opacity: [0, 1],
+      translateY: [14, 0],
+      delay: anime.stagger(80, { start: 80 }),
+      duration: 380,
+      easing: 'easeOutCubic'
+    });
+
+    anime({
+      targets: pluses,
+      opacity: [0, 1],
+      delay: anime.stagger(80, { start: 120 }),
+      duration: 300,
+      easing: 'easeOutCubic'
+    });
+
+    // After tokens land, reveal the equals row
+    anime({
+      targets: equalsEl,
+      opacity: [0, 1],
+      translateY: [8, 0],
+      delay: 80 + cards.length * 80 + 180,
+      duration: 420,
+      easing: 'easeOutCubic'
+    });
+  }
+
+  // ── Converter logic ────────────────────────────────────────────────────────
+  const placeholders = {
+    roman: 'XIV · MCMXCIX…',
+    arabic: '1 · 42 · 1994…',
+    egyptian: '𓆼𓍢𓎆𓏽…',
+    thai: '๑๒๓๔…'
+  };
+
+  const fromSel  = document.getElementById('system_from');
+  const toSel    = document.getElementById('system_to');
+  const input    = document.getElementById('value-input');
+  const resultEl = document.getElementById('result-view');
+  const swapBtn  = document.getElementById('swap-btn');
+  const convBtn  = document.getElementById('convert-btn');
+
+  function updatePlaceholder() {
+    input.placeholder = placeholders[fromSel.value] || 'Введіть число…';
+  }
+
+  fromSel.addEventListener('change', updatePlaceholder);
+  updatePlaceholder();
+
+  swapBtn.addEventListener('click', () => {
+    [fromSel.value, toSel.value] = [toSel.value, fromSel.value];
+    const prev = input.value;
+    const prev_result = resultEl.textContent;
+    if (prev_result && prev_result !== '—' && !prev_result.startsWith('Помилка')) {
+      input.value = prev_result;
+    }
+    resultEl.textContent = '—';
+    updatePlaceholder();
+    document.getElementById('breakdown-stage').innerHTML =
+      '<span class="breakdown-empty">Натисни «Конвертувати»</span>';
+    document.getElementById('breakdown-equals').style.opacity = 0;
+  });
+
+  async function doConvert() {
+    const value = input.value.trim();
+    if (!value) return;
+
+    resultEl.textContent = '…';
+    resultEl.classList.remove('pulse');
+
+    try {
+      const res = await fetch('/api/convert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          value,
+          system_from: fromSel.value,
+          system_to:   toSel.value
+        })
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        resultEl.textContent = 'Помилка';
+        return;
+      }
+
+      resultEl.textContent = data.result;
+
+      // Trigger pulse animation on result
+      void resultEl.offsetWidth; // reflow
+      resultEl.classList.add('pulse');
+
+      // Render animated breakdown
+      renderBreakdown(fromSel.value, toSel.value, value, data.result);
+
+    } catch(e) {
+      resultEl.textContent = 'Server error';
+    }
+  }
+
+  convBtn.addEventListener('click', doConvert);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') doConvert(); });
   </script>
 </body>
-
 </html>
