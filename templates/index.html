@@ -31,18 +31,6 @@
     'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
     'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     }[st] %}
-    {% set placeholder_from = {
-    'roman': 'I · V · X · L · C · D · M',
-    'arabic': '0 1 2 3 4 5 6 7 8 9',
-    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    }[sf] %}
-    {% set placeholder_to = {
-    'roman': 'I · V · X · L · C · D · M',
-    'arabic': '0 1 2 3 4 5 6 7 8 9',
-    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
-    }[st] %}
 
     <section class="converter">
       <form class="glass-card converter-card" action="/convert" method="POST">
@@ -81,49 +69,10 @@
         </div>
       </form>
 
-      {% if sf == 'roman' %}
-      <section class="glass-card breakdown">
-        <h3>{{ value or placeholder_from }}</h3>
-        <div class="break-grid">
-          {% if value and st == 'arabic' %}
-          <div>
-            <p class="token">M</p>
-            <p class="token-sub">1000</p>
-          </div>
-          <div>
-            <p class="token">DCC</p>
-            <p class="token-sub">700</p>
-          </div>
-          <div>
-            <p class="token">X</p>
-            <p class="token-sub">10</p>
-          </div>
-          <div>
-            <p class="token">IV</p>
-            <p class="token-sub">4</p>
-          </div>
-          {% else %}
-          <div>
-            <p class="token">I</p>
-            <p class="token-sub">1</p>
-          </div>
-          <div>
-            <p class="token">V</p>
-            <p class="token-sub">5</p>
-          </div>
-          <div>
-            <p class="token">X</p>
-            <p class="token-sub">10</p>
-          </div>
-          <div>
-            <p class="token">L</p>
-            <p class="token-sub">50</p>
-          </div>
-          {% endif %}
-        </div>
-        <p class="break-total">{{ result or placeholder_to }}</p>
+      <section class="glass-card breakdown" id="hint-card">
+        <div class="hint-symbols" id="hint-symbols"></div>
+        <div class="break-grid" id="hint-grid"></div>
       </section>
-      {% endif %}
     </section>
   </main>
 
@@ -135,6 +84,72 @@
       thai: '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     };
 
+    const hints = {
+      roman: {
+        title: 'I · V · X · L · C · D · M',
+        symbols: [
+          { sym: 'I', val: '1' }, { sym: 'V', val: '5' },
+          { sym: 'X', val: '10' }, { sym: 'L', val: '50' },
+          { sym: 'C', val: '100' }, { sym: 'D', val: '500' },
+          { sym: 'M', val: '1000' }
+        ],
+        arabic: '0 1 2 3 4 5 6 7 8 9'
+      },
+      arabic: {
+        title: '0 · 1 · 2 · 3 · 4 · 5 · 6 · 7 · 8 · 9',
+        symbols: [
+          { sym: '0', val: '' }, { sym: '1', val: '' },
+          { sym: '2', val: '' }, { sym: '3', val: '' },
+          { sym: '4', val: '' }, { sym: '5', val: '' },
+          { sym: '6', val: '' }, { sym: '7', val: '' },
+          { sym: '8', val: '' }, { sym: '9', val: '' }
+        ],
+        arabic: ''
+      },
+      egyptian: {
+        title: '𓏽 · 𓎆 · 𓍢 · 𓆼 · 𓂭 · 𓆐 · 𓀼',
+        symbols: [
+          { sym: '𓏽', val: '1' }, { sym: '𓎆', val: '10' },
+          { sym: '𓍢', val: '100' }, { sym: '𓆼', val: '1 000' },
+          { sym: '𓂭', val: '10 000' }, { sym: '𓆐', val: '100 000' },
+          { sym: '𓀼', val: '1 000 000' }
+        ],
+        arabic: '0 1 2 3 4 5 6 7 8 9'
+      },
+      thai: {
+        title: '๐ · ๑ · ๒ · ๓ · ๔ · ๕ · ๖ · ๗ · ๘ · ๙',
+        symbols: [
+          { sym: '๐', val: '0' }, { sym: '๑', val: '1' },
+          { sym: '๒', val: '2' }, { sym: '๓', val: '3' },
+          { sym: '๔', val: '4' }, { sym: '๕', val: '5' },
+          { sym: '๖', val: '6' }, { sym: '๗', val: '7' },
+          { sym: '๘', val: '8' }, { sym: '๙', val: '9' }
+        ],
+        arabic: '0 1 2 3 4 5 6 7 8 9'
+      }
+    };
+
+    const hintCard = document.getElementById('hint-card');
+    const hintSymbols = document.getElementById('hint-symbols');
+    const hintGrid = document.getElementById('hint-grid');
+
+    function renderHint(system) {
+      const h = hints[system];
+      if (!h) { hintCard.style.display = 'none'; return; }
+      hintCard.style.display = '';
+      hintSymbols.innerHTML = h.symbols.map(s =>
+        `<button type="button" class="hint-btn" data-sym="${s.sym}">${s.sym}${s.val ? `<span>${s.val}</span>` : ''}</button>`
+      ).join('');
+      hintGrid.innerHTML = '';
+    }
+
+    document.getElementById('hint-card').addEventListener('click', (e) => {
+      const btn = e.target.closest('.hint-btn');
+      if (!btn) return;
+      valueInput.value += btn.dataset.sym;
+      clearResult();
+    });
+
     const fromSel = document.querySelector('select[name="system_from"]');
     const toSel = document.querySelector('select[name="system_to"]');
     const valueInput = document.getElementById('value-input');
@@ -142,8 +157,10 @@
 
     function swapSystems() {
       const tmp = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
+      valueInput.value = '';
       clearResult();
       updatePlaceholders();
+      renderHint(fromSel.value);
     }
 
     function updatePlaceholders() {
@@ -158,11 +175,12 @@
       resultView.textContent = placeholders[toSel.value] || '';
     }
 
-    fromSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
+    fromSel?.addEventListener('change', () => { valueInput.value = ''; clearResult(); updatePlaceholders(); renderHint(fromSel.value); });
     toSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
     valueInput?.addEventListener('input', () => { clearResult(); });
 
     updatePlaceholders();
+    renderHint(fromSel.value);
   </script>
 </body>
 

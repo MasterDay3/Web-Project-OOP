@@ -91,39 +91,6 @@
       {% endif %}
     </section>
 
-    <!-- Швидкий доступ -->
-    <div class="dashboard-grid">
-      <article class="glass-card dashboard-tile">
-        <h3>Задачі</h3>
-        <p>Тренуй числові системи щодня.</p>
-        <a class="cta" href="{{ url_for('task_routes.tasks_page') }}">Почати</a>
-      </article>
-      <article class="glass-card dashboard-tile">
-        <h3>Статистика</h3>
-        <p>Графіки успішності та активності.</p>
-        <a class="cta" href="{{ url_for('stats_routes.stats') }}">Переглянути</a>
-      </article>
-      <article class="glass-card dashboard-tile">
-        <h3>Рейтинг</h3>
-        <p>Дивись своє місце в рейтингу.</p>
-        <a class="cta" href="{{ url_for('leaderboard_routes.leaderboard') }}">Відкрити</a>
-      </article>
-      <article class="glass-card dashboard-tile">
-        <h3>Конвертор</h3>
-        <p>Конвертуй числа між системами.</p>
-        <a class="cta" href="{{ url_for('home') }}">Відкрити</a>
-      </article>
-      <article class="glass-card dashboard-tile">
-        <h3>Профіль</h3>
-        <p>Налаштування акаунту.</p>
-        <a class="cta" href="{{ url_for('profile_routes.profile') }}">Налаштування</a>
-      </article>
-      <article class="glass-card dashboard-tile">
-        <h3>Помилки</h3>
-        <p>Повтори задачі на які відповів неправильно.</p>
-        <a class="cta" href="{{ url_for('mistakes_routes.mistakes') }}">Переглянути</a>
-      </article>
-    </div>
   </main>
 
   <style>
@@ -257,57 +224,15 @@
       text-align: right;
     }
 
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    .dashboard-tile {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-height: 160px;
-    }
-
-    .dashboard-tile h3 {
-      margin: 0;
-      font-size: 18px;
-    }
-
-    .dashboard-tile p {
-      margin: 0 0 12px;
-      color: var(--muted);
-      font-size: 14px;
-      flex: 1;
-    }
-
-    .dashboard-tile .cta {
-      width: fit-content;
-      text-decoration: none;
-      font-size: 14px;
-      padding: 8px 18px;
-      margin-top: auto;
-    }
-
     @media (max-width: 900px) {
       .db-top-grid {
         grid-template-columns: repeat(3, 1fr);
-      }
-
-      .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
       }
     }
 
     @media (max-width: 600px) {
       .db-top-grid {
         grid-template-columns: repeat(2, 1fr);
-      }
-
-      .dashboard-grid {
-        grid-template-columns: 1fr;
       }
     }
   </style>
