@@ -8,23 +8,8 @@
 </head>
 
 <body class="page-light">
-  <header class="nav-bar">
-    <div class="brand">
-      <span class="brand-dot"></span>
-      <span class="brand-name">Numerix</span>
-    </div>
-    <nav class="nav-links">
-      <a href="{{ url_for('home') }}" class="active">Конвертор</a>
-      <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
-    </nav>
-    {% if current_user.is_authenticated %}
-    <a class="ghost" href="{{ url_for('dashboard') }}">Кабінет</a>
-    <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
-    {% else %}
-    <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Реєстрація</a>
-    {% endif %}
-  </header>
+  {% set active = 'converter' %}
+  {% include 'partials/sidebar.html' %}
 
   <main class="shell">
     <section class="hero" id="convert">

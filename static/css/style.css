@@ -25,7 +25,93 @@ body {
 
 a { color: inherit; }
 
-.shell { max-width: 1100px; margin: 40px auto 80px; padding: 0 20px; }
+.shell { max-width: 900px; margin: 40px auto 80px; padding: 0 24px; padding-left: 204px; }
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 180px;
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid var(--border);
+    box-shadow: 2px 0 24px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px 14px;
+    z-index: 100;
+}
+
+.sidebar-top { display: flex; flex-direction: column; gap: 8px; }
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    text-decoration: none;
+    padding: 8px 10px 20px;
+    letter-spacing: -0.01em;
+}
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--muted);
+    transition: background .12s, color .12s;
+}
+
+.sidebar-link:hover {
+    background: #f5f5f5;
+    color: var(--ink);
+}
+
+.sidebar-link.active {
+    background: #fdf1f1;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.sidebar-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+}
+
+.sidebar-logout { color: var(--accent); }
+.sidebar-logout:hover { background: #fef2f2; }
+
+.sidebar-register {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff !important;
+    font-weight: 700;
+}
+.sidebar-register:hover { opacity: 0.9; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+
+@media (max-width: 768px) {
+    .sidebar { display: none; }
+    .shell { padding-left: 24px; }
+}
 
 .page-light { background: radial-gradient(circle at 15% 18%, var(--bg2) 0, var(--bg) 38%, #ffffff 70%); }
 

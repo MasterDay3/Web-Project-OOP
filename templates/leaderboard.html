@@ -8,20 +8,8 @@
 </head>
 
 <body class="page-light">
-    <header class="nav-bar">
-        <div class="brand">
-            <span class="brand-dot"></span>
-            <span class="brand-name">Numerix</span>
-        </div>
-        <nav class="nav-links">
-            <a href="{{ url_for('home') }}">Конвертор</a>
-            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
-            <a href="{{ url_for('task_routes.tasks_page') }}">Задачі</a>
-            <a href="{{ url_for('leaderboard_routes.leaderboard') }}" class="active">Рейтинг</a>
-        </nav>
-        <a class="ghost" href="{{ url_for('dashboard') }}">Кабінет</a>
-        <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
-    </header>
+    {% set active = 'leaderboard' %}
+    {% include 'partials/sidebar.html' %}
 
     <main class="shell">
         <section class="hero">
