@@ -98,11 +98,16 @@ def submit_answer():
         db.session.add(daily)
         db.session.flush()
 
+        # Скидаємо стрік якщо пропустив день
+        if current_user.last_active and (today - current_user.last_active).days > 1:
+            current_user.streak = 0
+
     if is_correct:
         daily.tasks_done += 1
-    if daily.tasks_done >= current_user.daily_goal:
+
+    # Стрік +1 тільки один раз на день (коли ціль вперше досягнута)
+    if not daily.goal_met and daily.tasks_done >= current_user.daily_goal:
         daily.goal_met = True
-        # оновлюємо стрік
         current_user.streak += 1
 
     current_user.last_active = today
