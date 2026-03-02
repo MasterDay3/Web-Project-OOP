@@ -98,7 +98,8 @@ def submit_answer():
         db.session.add(daily)
         db.session.flush()
 
-    daily.tasks_done += 1
+    if is_correct:
+        daily.tasks_done += 1
     if daily.tasks_done >= current_user.daily_goal:
         daily.goal_met = True
         # оновлюємо стрік

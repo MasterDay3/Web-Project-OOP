@@ -16,9 +16,9 @@ class Convertor:
 
     egyptian_numbers = [
         (1000000, '𓀼'), (100000, '𓆐'), (10000, '𓂭'),
-        (1000, '𓆼'), (100, '𓍢'), (10, '𓎆'), (1, '𓏽')
+        (1000, '𓆼'), (100, '𓍢'), (10, '𓎆'), (1, '𓏺')
     ]
-    egypt_hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼', '𓍢', '𓎆', '𓏽']
+    egypt_hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼', '𓍢', '𓎆', '𓏺']
 
     thai_numbers = [
         ('0', '๐'), ('1', '๑'), ('2', '๒'), ('3', '๓'),('4', '๔'),
@@ -526,21 +526,21 @@ def test():
 
     # --- EGYPTIAN TESTS ---
     # 1. Арабські -> Єгипетські
-    assert Convertor("1").convert_to_egyptian() == "𓏽"
+    assert Convertor("1").convert_to_egyptian() == "𓏺"
     assert Convertor("10").convert_to_egyptian() == "𓎆"
-    assert Convertor("12").convert_to_egyptian() == "𓎆𓏽𓏽"
-    assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏽𓏽"
-    
+    assert Convertor("12").convert_to_egyptian() == "𓎆𓏺𓏺"
+    assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏺𓏺"
+
     error_range = 'Число має бути в діапазоні від 1 до 9999999'
     assert Convertor("0").convert_to_egyptian() == error_range
     assert Convertor("10000000").convert_to_egyptian() == error_range
 
     # 2. Єгипетські -> Арабські
-    assert Convertor("𓏽").convert_egyptian_to_arab() == "1"
+    assert Convertor("𓏺").convert_egyptian_to_arab() == "1"
     assert Convertor("𓎆").convert_egyptian_to_arab() == "10"
-    assert Convertor("𓎆𓏽𓏽").convert_egyptian_to_arab() == "12"
-    assert Convertor("𓏽𓎆𓏽").convert_egyptian_to_arab() == "12"
-    
+    assert Convertor("𓎆𓏺𓏺").convert_egyptian_to_arab() == "12"
+    assert Convertor("𓏺𓎆𓏺").convert_egyptian_to_arab() == "12"
+
     error_invalid = 'Невірне введення, такого числа немає в єгипетській системі числення'
     assert Convertor("ABC").convert_egyptian_to_arab() == error_invalid
     assert Convertor("123").convert_egyptian_to_arab() == error_invalid
@@ -548,7 +548,7 @@ def test():
     test_val = "1234"
     egyptian_str = Convertor(test_val).convert_to_egyptian()
     arabic_res = Convertor(egyptian_str).convert_egyptian_to_arab()
-    assert int(test_val) == arabic_res
+    assert test_val == arabic_res
 
     print("Egyptian tests done! 𓆼 ✅")
     print("-" * 30)
@@ -641,8 +641,8 @@ def test():
     # ── EGYPTIAN ──
     assert Calculator('𓎆𓎆', '+', '𓎆𓎆𓎆', 'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆'  # 20+30=50
     assert Calculator('𓎆',   '*', '𓎆',     'egyptian').calculate() == '𓍢'         # 10*10=100
-    assert Calculator('𓍢',   '-', '𓎆',     'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆'  # 100-10=90
-    assert Calculator('𓎆𓎆',  '/', '𓎆',     'egyptian').calculate() == '𓏽𓏽'        # 20/10=2
+    assert Calculator('𓍢',   '-', '𓎆',     'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆'  # 100-10=90 (9 tens)
+    assert Calculator('𓎆𓎆',  '/', '𓎆',     'egyptian').calculate() == '𓏺𓏺'        # 20/10=2
     assert Calculator('𓎆',   '!', number_system='egyptian').calculate() == '𓀼𓀼𓀼𓆐𓆐𓆐𓆐𓆐𓆐𓂭𓂭𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓍢𓍢'  # 10!=3628800
     assert Calculator('𓍢',   'sqrt', number_system='egyptian').calculate() == '𓎆'  # sqrt(100)=10
     # дробовий результат

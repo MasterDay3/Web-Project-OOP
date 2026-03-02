@@ -31,11 +31,7 @@
                 <span class="mk-sum-lbl">Систем з помилками</span>
             </div>
             <div class="mk-sum-item">
-                <span class="mk-sum-val">
-                    {{ mistakes | selectattr('system', 'equalto', mistakes | map(attribute='system') | list |
-                    groupby('system') | sort(attribute='list', reverse=True) | first | default({'grouper': '—'}) |
-                    attr('grouper')) | list | length }}
-                </span>
+                <span class="mk-sum-val">{{ worst_system }}</span>
                 <span class="mk-sum-lbl">Найпроблемніша система</span>
             </div>
         </div>

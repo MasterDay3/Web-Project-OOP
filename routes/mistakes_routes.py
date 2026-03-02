@@ -25,7 +25,14 @@ def mistakes():
         .all()
     )
 
-    return render_template("mistakes.html", mistakes=wrong)
+    # Найпроблемніша система (з найбільшою кількістю помилок)
+    worst_system = "—"
+    if wrong:
+        from collections import Counter
+        counts = Counter(m.system for m in wrong)
+        worst_system = counts.most_common(1)[0][0].capitalize()
+
+    return render_template("mistakes.html", mistakes=wrong, worst_system=worst_system)
 
 
 @mistakes_routes.route("/mistakes/retry", methods=["POST"])

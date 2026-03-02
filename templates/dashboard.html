@@ -35,7 +35,7 @@
       <div class="glass-card db-stat-card">
         <span class="db-stat-icon">🎯</span>
         <span class="db-stat-val">Рів. {{ current_user.level }}</span>
-        <span class="db-stat-lbl">Рівень</span>
+        <span class="db-stat-lbl">Ще {{ 100 - (current_user.xp % 100) }} XP до рів. {{ current_user.level + 1 }}</span>
       </div>
       <div class="glass-card db-stat-card">
         <span class="db-stat-icon">🔥</span>
