@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Numerix · Конвертор</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8">
+  <title>Numerix · Конвертор</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body class="page-light">
   <header class="nav-bar">
     <div class="brand">
@@ -16,11 +18,11 @@
       <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
     </nav>
     {% if current_user.is_authenticated %}
-      <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
-      <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
     {% else %}
-      <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-      <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
+    <a class="ghost" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+    <a class="cta-nav" href="{{ url_for('auth_routes.register') }}">Sign up</a>
     {% endif %}
   </header>
 
@@ -33,28 +35,28 @@
     {% set sf = system_from or 'roman' %}
     {% set st = system_to or 'arabic' %}
     {% set placeholder_from = {
-      'roman': 'I · V · X · L · C · D · M',
-      'arabic': '0 1 2 3 4 5 6 7 8 9',
-      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    'roman': 'I · V · X · L · C · D · M',
+    'arabic': '0 1 2 3 4 5 6 7 8 9',
+    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     }[sf] %}
     {% set placeholder_to = {
-      'roman': 'I · V · X · L · C · D · M',
-      'arabic': '0 1 2 3 4 5 6 7 8 9',
-      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    'roman': 'I · V · X · L · C · D · M',
+    'arabic': '0 1 2 3 4 5 6 7 8 9',
+    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     }[st] %}
     {% set placeholder_from = {
-      'roman': 'I · V · X · L · C · D · M',
-      'arabic': '0 1 2 3 4 5 6 7 8 9',
-      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    'roman': 'I · V · X · L · C · D · M',
+    'arabic': '0 1 2 3 4 5 6 7 8 9',
+    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     }[sf] %}
     {% set placeholder_to = {
-      'roman': 'I · V · X · L · C · D · M',
-      'arabic': '0 1 2 3 4 5 6 7 8 9',
-      'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
-      'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
+    'roman': 'I · V · X · L · C · D · M',
+    'arabic': '0 1 2 3 4 5 6 7 8 9',
+    'egyptian': '𓀼 𓆐 𓂭 𓆼 𓍢 𓎆 𓏽',
+    'thai': '๐ ๑ ๒ ๓ ๔ ๕ ๖ ๗ ๘ ๙'
     }[st] %}
 
     <section class="converter">
@@ -63,28 +65,30 @@
           <div class="head-col">
             <span>From</span>
             <select name="system_from">
-              <option value="arabic"   {% if sf=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="roman"    {% if sf=='roman' %}selected{% endif %}>Roman</option>
+              <option value="arabic" {% if sf=='arabic' %}selected{% endif %}>Arabic</option>
+              <option value="roman" {% if sf=='roman' %}selected{% endif %}>Roman</option>
               <option value="egyptian" {% if sf=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai"     {% if sf=='thai' %}selected{% endif %}>Thai</option>
+              <option value="thai" {% if sf=='thai' %}selected{% endif %}>Thai</option>
             </select>
           </div>
           <button type="button" class="swap" onclick="swapSystems()">⇄</button>
           <div class="head-col">
             <span>To</span>
             <select name="system_to">
-              <option value="arabic"   {% if st=='arabic' %}selected{% endif %}>Arabic</option>
-              <option value="roman"    {% if st=='roman' %}selected{% endif %}>Roman</option>
+              <option value="arabic" {% if st=='arabic' %}selected{% endif %}>Arabic</option>
+              <option value="roman" {% if st=='roman' %}selected{% endif %}>Roman</option>
               <option value="egyptian" {% if st=='egyptian' %}selected{% endif %}>Egyptian</option>
-              <option value="thai"     {% if st=='thai' %}selected{% endif %}>Thai</option>
+              <option value="thai" {% if st=='thai' %}selected{% endif %}>Thai</option>
             </select>
           </div>
         </div>
 
         <div class="convert-body">
-          <input class="side-input" id="value-input" type="text" name="value" value="{{ value or '' }}" placeholder="{{ placeholder_from }}" required>
+          <input class="side-input" id="value-input" type="text" name="value" value="{{ value or '' }}"
+            placeholder="{{ placeholder_from }}" required>
           <div class="side-divider"></div>
-          <div class="result-view" id="result-view" {% if result is not none %}data-locked="1"{% endif %}>{{ result if result is not none else placeholder_to }}</div>
+          <div class="result-view" id="result-view" {% if result is not none %}data-locked="1" {% endif %}>{{ result if
+            result is not none else placeholder_to }}</div>
         </div>
 
         <div class="convert-actions">
@@ -97,15 +101,39 @@
         <h3>{{ value or placeholder_from }}</h3>
         <div class="break-grid">
           {% if value and st == 'arabic' %}
-            <div><p class="token">M</p><p class="token-sub">1000</p></div>
-            <div><p class="token">DCC</p><p class="token-sub">700</p></div>
-            <div><p class="token">X</p><p class="token-sub">10</p></div>
-            <div><p class="token">IV</p><p class="token-sub">4</p></div>
+          <div>
+            <p class="token">M</p>
+            <p class="token-sub">1000</p>
+          </div>
+          <div>
+            <p class="token">DCC</p>
+            <p class="token-sub">700</p>
+          </div>
+          <div>
+            <p class="token">X</p>
+            <p class="token-sub">10</p>
+          </div>
+          <div>
+            <p class="token">IV</p>
+            <p class="token-sub">4</p>
+          </div>
           {% else %}
-            <div><p class="token">I</p><p class="token-sub">1</p></div>
-            <div><p class="token">V</p><p class="token-sub">5</p></div>
-            <div><p class="token">X</p><p class="token-sub">10</p></div>
-            <div><p class="token">L</p><p class="token-sub">50</p></div>
+          <div>
+            <p class="token">I</p>
+            <p class="token-sub">1</p>
+          </div>
+          <div>
+            <p class="token">V</p>
+            <p class="token-sub">5</p>
+          </div>
+          <div>
+            <p class="token">X</p>
+            <p class="token-sub">10</p>
+          </div>
+          <div>
+            <p class="token">L</p>
+            <p class="token-sub">50</p>
+          </div>
           {% endif %}
         </div>
         <p class="break-total">{{ result or placeholder_to }}</p>
@@ -123,12 +151,12 @@
     };
 
     const fromSel = document.querySelector('select[name="system_from"]');
-    const toSel   = document.querySelector('select[name="system_to"]');
+    const toSel = document.querySelector('select[name="system_to"]');
     const valueInput = document.getElementById('value-input');
     const resultView = document.getElementById('result-view');
 
     function swapSystems() {
-      const tmp  = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
+      const tmp = fromSel.value; fromSel.value = toSel.value; toSel.value = tmp;
       clearResult();
       updatePlaceholders();
     }
@@ -146,10 +174,11 @@
     }
 
     fromSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
-    toSel?.addEventListener('change',   () => { clearResult(); updatePlaceholders(); });
+    toSel?.addEventListener('change', () => { clearResult(); updatePlaceholders(); });
     valueInput?.addEventListener('input', () => { clearResult(); });
 
     updatePlaceholders();
   </script>
 </body>
+
 </html>

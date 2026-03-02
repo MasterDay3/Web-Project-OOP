@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
   <meta charset="UTF-8">
   <title>Numerix · Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body class="page-light">
   <header class="nav-bar">
     <div class="brand">
@@ -14,48 +16,306 @@
     <nav class="nav-links">
       <a href="{{ url_for('home') }}">Конвертор</a>
       <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
-      <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+      <a href="{{ url_for('task_routes.tasks_page') }}">Задачі</a>
+      <a href="{{ url_for('leaderboard_routes.leaderboard') }}">Leaderboard</a>
     </nav>
-    <a class="ghost" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    <a class="ghost" href="{{ url_for('profile_routes.profile') }}">Профіль</a>
+    <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
   </header>
 
-  <main class="shell dashboard-page">
+  <main class="shell">
     <section class="hero">
       <p class="eyebrow">Welcome back</p>
-      <h1>Привіт, {{ current_user.username }}!</h1>
-      <p class="lede">Тут швидкий доступ до основних інструментів Numerix.</p>
+      <h1>Привіт, {{ current_user.username }}! 👋</h1>
     </section>
 
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <section class="glass-card dashboard-alert">
-        {% for msg in messages %}
-          <p>{{ msg }}</p>
-        {% endfor %}
-      </section>
-      {% endif %}
+    {% if messages %}
+    <div class="glass-card dashboard-alert">
+      {% for msg in messages %}<p>{{ msg }}</p>{% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
-    <section class="dashboard-grid">
+    <!-- Топ картки -->
+    <div class="db-top-grid">
+      <div class="glass-card db-stat-card">
+        <span class="db-stat-icon">⚡</span>
+        <span class="db-stat-val">{{ current_user.xp }}</span>
+        <span class="db-stat-lbl">XP</span>
+      </div>
+      <div class="glass-card db-stat-card">
+        <span class="db-stat-icon">🎯</span>
+        <span class="db-stat-val">Lvl {{ current_user.level }}</span>
+        <span class="db-stat-lbl">Рівень</span>
+      </div>
+      <div class="glass-card db-stat-card">
+        <span class="db-stat-icon">🔥</span>
+        <span class="db-stat-val">{{ current_user.streak }}</span>
+        <span class="db-stat-lbl">Стрік</span>
+      </div>
+      <div class="glass-card db-stat-card">
+        <span class="db-stat-icon">✅</span>
+        <span class="db-stat-val">{{ accuracy }}%</span>
+        <span class="db-stat-lbl">Точність</span>
+      </div>
+      <div class="glass-card db-stat-card">
+        <span class="db-stat-icon">📋</span>
+        <span class="db-stat-val">{{ tasks_today }} / {{ current_user.daily_goal }}</span>
+        <span class="db-stat-lbl">Сьогодні</span>
+      </div>
+    </div>
+
+    <!-- Графік 7 днів -->
+    <section class="glass-card db-chart-card">
+      <h3>Активність за тиждень</h3>
+      <div class="db-chart">
+        {% set max_done = week | map(attribute='done') | max %}
+        {% for day in week %}
+        <div class="db-bar-wrap">
+          <div class="db-bar-bg">
+            <div class="db-bar {{ 'db-bar-met' if day.met else '' }}"
+              style="height: {{ (day.done / max_done * 100) | int if max_done > 0 else 0 }}%">
+            </div>
+          </div>
+          <span class="db-bar-val">{{ day.done }}</span>
+          <span class="db-bar-lbl">{{ day.date }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Прогрес по системах -->
+    <section class="glass-card db-progress-card">
+      <h3>Прогрес по системах</h3>
+      {% if progress %}
+      {% for p in progress %}
+      <div class="db-system-row">
+        <span class="db-system-name">{{ p.system | capitalize }}</span>
+        <div class="db-progress-bar-bg">
+          <div class="db-progress-bar" style="width: {{ p.accuracy }}%"></div>
+        </div>
+        <span class="db-system-stat">{{ p.tasks_correct }}/{{ p.tasks_done }} ({{ p.accuracy }}%)</span>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p style="color: var(--muted)">Ще немає даних — почни тренування!</p>
+      {% endif %}
+    </section>
+
+    <!-- Швидкий доступ -->
+    <div class="dashboard-grid">
+      <article class="glass-card dashboard-tile">
+        <h3>Задачі</h3>
+        <p>Тренуй числові системи щодня.</p>
+        <a class="cta" href="{{ url_for('task_routes.tasks_page') }}">Почати</a>
+      </article>
+      <article class="glass-card dashboard-tile">
+        <h3>Статистика</h3>
+        <p>Графіки успішності та активності.</p>
+        <a class="cta" href="{{ url_for('stats_routes.stats') }}">Переглянути</a>
+      </article>
+      <article class="glass-card dashboard-tile">
+        <h3>Leaderboard</h3>
+        <p>Дивись своє місце в рейтингу.</p>
+        <a class="cta" href="{{ url_for('leaderboard_routes.leaderboard') }}">Відкрити</a>
+      </article>
       <article class="glass-card dashboard-tile">
         <h3>Конвертор</h3>
-        <p>Перекладайте числа між Roman, Arabic, Egyptian та Thai системами.</p>
-        <a class="cta" href="{{ url_for('home') }}">Відкрити конвертор</a>
+        <p>Конвертуй числа між системами.</p>
+        <a class="cta" href="{{ url_for('home') }}">Відкрити</a>
       </article>
-
       <article class="glass-card dashboard-tile">
-        <h3>Калькулятор</h3>
-        <p>Обчислення у різних системах числення з єдиною клавіатурою.</p>
-        <a class="cta" href="{{ url_for('calculator_page') }}">Відкрити калькулятор</a>
+        <h3>Профіль</h3>
+        <p>Налаштування акаунту.</p>
+        <a class="cta" href="{{ url_for('profile_routes.profile') }}">Налаштування</a>
       </article>
-
       <article class="glass-card dashboard-tile">
-        <h3>Акаунт</h3>
-        <p>Email: {{ current_user.email }}</p>
-        <p>Рівень: {{ current_user.level }}</p>
-        <a class="ghost dashboard-logout" href="{{ url_for('auth_routes.logout') }}">Вийти з акаунта</a>
+        <h3>Помилки</h3>
+        <p>Повтори задачі на які відповів неправильно.</p>
+        <a class="cta" href="{{ url_for('mistakes_routes.mistakes') }}">Переглянути</a>
       </article>
-    </section>
+    </div>
   </main>
+
+  <style>
+    .db-top-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .db-stat-card {
+      padding: 20px;
+      display: grid;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .db-stat-icon {
+      font-size: 24px;
+    }
+
+    .db-stat-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .db-stat-lbl {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .db-chart-card {
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .db-chart-card h3 {
+      margin: 0 0 20px;
+    }
+
+    .db-chart {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      height: 140px;
+    }
+
+    .db-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+    }
+
+    .db-bar-bg {
+      flex: 1;
+      width: 100%;
+      background: #f3f4f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .db-bar {
+      width: 100%;
+      background: var(--accent);
+      border-radius: 8px;
+      min-height: 4px;
+      transition: height .3s ease;
+    }
+
+    .db-bar-met {
+      background: #22c55e;
+    }
+
+    .db-bar-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .db-bar-lbl {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .db-progress-card {
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .db-progress-card h3 {
+      margin: 0 0 16px;
+    }
+
+    .db-system-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 120px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .db-system-name {
+      font-weight: 700;
+    }
+
+    .db-progress-bar-bg {
+      height: 10px;
+      background: #f3f4f6;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .db-progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    .db-system-stat {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .dashboard-tile {
+      padding: 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .dashboard-tile h3 {
+      margin: 0;
+    }
+
+    .dashboard-tile p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .dashboard-tile .cta {
+      width: fit-content;
+      text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+      .db-top-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .db-top-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </body>
+
 </html>

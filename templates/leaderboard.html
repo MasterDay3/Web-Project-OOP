@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Numerix · Leaderboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="page-light">
+    <header class="nav-bar">
+        <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Numerix</span>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Конвертор</a>
+            <a href="{{ url_for('calculator_page') }}">Калькулятор</a>
+            <a href="{{ url_for('task_routes.tasks_page') }}">Задачі</a>
+            <a href="{{ url_for('leaderboard_routes.leaderboard') }}" class="active">Leaderboard</a>
+        </nav>
+        <a class="ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="cta-nav" href="{{ url_for('auth_routes.logout') }}">Вийти</a>
+    </header>
+
+    <main class="shell">
+        <section class="hero">
+            <p class="eyebrow">Рейтинг</p>
+            <h1>Leaderboard 🏆</h1>
+        </section>
+
+        <div class="lb-tabs">
+            <button class="lb-tab active" onclick="showTab('xp')">За XP</button>
+            <button class="lb-tab" onclick="showTab('streak')">За стріком 🔥</button>
+        </div>
+
+        <!-- Топ по XP -->
+        <section class="glass-card lb-card" id="tab-xp">
+            <table class="lb-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Гравець</th>
+                        <th>Рівень</th>
+                        <th>XP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in by_xp %}
+                    <tr class="{{ 'lb-me' if user.id == current_user.id else '' }}">
+                        <td class="lb-rank">
+                            {% if loop.index == 1 %}🥇
+                            {% elif loop.index == 2 %}🥈
+                            {% elif loop.index == 3 %}🥉
+                            {% else %}{{ loop.index }}
+                            {% endif %}
+                        </td>
+                        <td class="lb-name">{{ user.username }}</td>
+                        <td>Lvl {{ user.level }}</td>
+                        <td class="lb-score">{{ user.xp }} XP</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Топ по стріку -->
+        <section class="glass-card lb-card" id="tab-streak" style="display:none">
+            <table class="lb-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Гравець</th>
+                        <th>Рівень</th>
+                        <th>Стрік</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in by_streak %}
+                    <tr class="{{ 'lb-me' if user.id == current_user.id else '' }}">
+                        <td class="lb-rank">
+                            {% if loop.index == 1 %}🥇
+                            {% elif loop.index == 2 %}🥈
+                            {% elif loop.index == 3 %}🥉
+                            {% else %}{{ loop.index }}
+                            {% endif %}
+                        </td>
+                        <td class="lb-name">{{ user.username }}</td>
+                        <td>Lvl {{ user.level }}</td>
+                        <td class="lb-score">🔥 {{ user.streak }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <style>
+        .lb-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .lb-tab {
+            padding: 10px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .lb-tab.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .lb-card {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .lb-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .lb-table th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .lb-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .lb-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .lb-table tr:hover td {
+            background: #fdf8f8;
+        }
+
+        .lb-me td {
+            background: #fff9f7 !important;
+            font-weight: 700;
+        }
+
+        .lb-rank {
+            font-size: 18px;
+            width: 48px;
+        }
+
+        .lb-name {
+            font-weight: 600;
+        }
+
+        .lb-score {
+            color: var(--accent);
+            font-weight: 800;
+        }
+    </style>
+
+    <script>
+        function showTab(tab) {
+            document.getElementById('tab-xp').style.display = tab === 'xp' ? 'block' : 'none';
+            document.getElementById('tab-streak').style.display = tab === 'streak' ? 'block' : 'none';
+            document.querySelectorAll('.lb-tab').forEach((btn, i) => {
+                btn.classList.toggle('active', (tab === 'xp' && i === 0) || (tab === 'streak' && i === 1));
+            });
+        }
+    </script>
+</body>
+
+</html>
