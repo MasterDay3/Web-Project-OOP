@@ -16,25 +16,23 @@
     </section>
 
     <section class="glass-card calc-roman-card">
-      <form method="POST" class="calc-roman-form">
+      <div class="calc-roman-form">
         <div class="calc-toolbar">
-          <input id="calc-display" name="expr" class="calc-display" type="text"
-                 value="{{ expr or '' }}" placeholder="Введіть вираз, напр. X+V або √X" readonly>
+          <input id="calc-display" class="calc-display" type="text"
+                 placeholder="Введіть вираз, напр. X+V або √X" readonly>
           <label class="calc-system">
             <span>Система</span>
-            <select name="system" id="system-select">
-              <option value="roman"   {% if system=='roman' or not system %}selected{% endif %}>Римські</option>
-              <option value="arabic"  {% if system=='arabic' %}selected{% endif %}>Арабські</option>
-              <option value="egyptian"{% if system=='egyptian' %}selected{% endif %}>Єгипетські</option>
-              <option value="thai"    {% if system=='thai' %}selected{% endif %}>Тайські</option>
+            <select id="system-select">
+              <option value="roman" selected>Римські</option>
+              <option value="arabic">Арабські</option>
+              <option value="egyptian">Єгипетські</option>
+              <option value="thai">Тайські</option>
             </select>
           </label>
         </div>
-        <div class="calc-result-slot">
-          {% if calc_result %}= {{ calc_result }}{% elif calc_error %}{{ calc_error }}{% endif %}
-        </div>
+        <div class="calc-result-slot" id="calc-result"></div>
         <div class="calc-pad" id="calc-pad"></div>
-      </form>
+      </div>
     </section>
 
     <section class="glass-card calc-hint-card" id="calc-hint" style="display:none">
@@ -44,6 +42,7 @@
     </section>
   </main>
 
+  <script src="{{ url_for('static', filename='js/custom-select.js') }}"></script>
   <script>
     const display = document.getElementById('calc-display');
     const pad = document.getElementById('calc-pad');
@@ -176,7 +175,7 @@
         <div class="pad-row">
           ${row.filter(lbl => lbl !== '').map(lbl => {
               const full = (lbl === '=' && row.length === 1) ? ' btn-full' : '';
-              return `<button class="${styleFor(lbl)}${full}" type="${lbl==='='?'submit':'button'}" data-val="${lbl}">${lbl}</button>`;
+              return `<button class="${styleFor(lbl)}${full}" type="button" data-val="${lbl}">${lbl}</button>`;
             }).join('')}
         </div>`).join('');
       display.placeholder = placeholders[system] || placeholders.roman;
@@ -185,13 +184,39 @@
     renderPad(systemSelect.value || 'roman');
     renderHint(systemSelect.value || 'roman');
 
+    const resultSlot = document.getElementById('calc-result');
+
+    function doCalc() {
+      const expr = display.value.trim();
+      if (!expr) return;
+      fetch('/api/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expr: expr, system: systemSelect.value })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          resultSlot.textContent = data.error;
+          resultSlot.classList.add('calc-result-error');
+        } else {
+          resultSlot.textContent = '= ' + data.result;
+          resultSlot.classList.remove('calc-result-error');
+        }
+      })
+      .catch(() => {
+        resultSlot.textContent = 'Помилка зʼєднання';
+        resultSlot.classList.add('calc-result-error');
+      });
+    }
+
     pad.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
       const val = btn.dataset.val;
-      if (val === 'AC') { display.value=''; return; }
+      if (val === 'AC') { display.value=''; resultSlot.textContent=''; resultSlot.classList.remove('calc-result-error'); return; }
       if (val === '⌫') { display.value = display.value.slice(0,-1); return; }
-      if (val === '=') return; // submit handled by form
+      if (val === '=') { doCalc(); return; }
       display.value += val;
     });
 

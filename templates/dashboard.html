@@ -14,7 +14,7 @@
   <main class="shell">
     <section class="hero">
       <p class="eyebrow">З поверненням</p>
-      <h1>Привіт, {{ current_user.username }}! 👋</h1>
+      <h1>Привіт, {{ current_user.username }}!</h1>
     </section>
 
     {% with messages = get_flashed_messages() %}
@@ -28,27 +28,27 @@
     <!-- Топ картки -->
     <div class="db-top-grid">
       <div class="glass-card db-stat-card">
-        <span class="db-stat-icon">⚡</span>
+        <span class="db-stat-icon"><i data-lucide="zap"></i></span>
         <span class="db-stat-val">{{ current_user.xp }}</span>
         <span class="db-stat-lbl">XP</span>
       </div>
       <div class="glass-card db-stat-card">
-        <span class="db-stat-icon">🎯</span>
+        <span class="db-stat-icon"><i data-lucide="target"></i></span>
         <span class="db-stat-val">Рів. {{ current_user.level }}</span>
         <span class="db-stat-lbl">Ще {{ 100 - (current_user.xp % 100) }} XP до рів. {{ current_user.level + 1 }}</span>
       </div>
       <div class="glass-card db-stat-card">
-        <span class="db-stat-icon">🔥</span>
+        <span class="db-stat-icon"><i data-lucide="flame"></i></span>
         <span class="db-stat-val">{{ current_user.streak }}</span>
         <span class="db-stat-lbl">Стрік</span>
       </div>
       <div class="glass-card db-stat-card">
-        <span class="db-stat-icon">✅</span>
+        <span class="db-stat-icon"><i data-lucide="circle-check"></i></span>
         <span class="db-stat-val">{{ accuracy }}%</span>
         <span class="db-stat-lbl">Точність</span>
       </div>
       <div class="glass-card db-stat-card">
-        <span class="db-stat-icon">📋</span>
+        <span class="db-stat-icon"><i data-lucide="clipboard-list"></i></span>
         <span class="db-stat-val">{{ tasks_today }} / {{ current_user.daily_goal }}</span>
         <span class="db-stat-lbl">Сьогодні</span>
       </div>

@@ -2,49 +2,56 @@
 {% block content %}
 <main class="auth-shell">
   <section class="auth-card">
-    <div class="auth-hero">
-      <div class="brand-badge">𝜈</div>
-      <p class="eyebrow">Numerix • тренування чисел</p>
-      <h1>Створи акаунт</h1>
-      <p class="subtext">Почни шлях з мов чисел: проходь вправи, отримуй рівні, збільшуй серію.</p>
-      <ul class="hero-points">
-        <li>📊 Прогрес по системах числення</li>
-        <li>⏱ Швидкі сесії на 5–10 хв</li>
-        <li>🔐 Безпечний вхід і збереження даних</li>
-      </ul>
+    <div class="auth-banner">
+      <div class="banner-nums" aria-hidden="true">
+        <span>XIV</span><span>𓎆𓏺</span><span>๗</span><span>42</span><span>VII</span><span>๓</span><span>𓎆</span><span>IX</span>
+      </div>
+      <div class="banner-content">
+        <div class="brand-badge">𝜈</div>
+        <p class="banner-label">Numerix</p>
+        <h1>Створи акаунт</h1>
+        <p class="banner-sub">Конвертер, калькулятор та вправи для 4 числових систем</p>
+      </div>
     </div>
 
-    <div class="auth-form">
-      <h2>Реєстрація</h2>
-      <form method="POST">
-        <label>
-          Ім’я користувача
-          <input type="text" name="username" placeholder="numerix_fan" required>
-        </label>
-        <label>
-          Email
-          <input type="email" name="email" placeholder="you@example.com" required>
-        </label>
-        <label>
-          Пароль
-          <input type="password" name="password" placeholder="••••••••" required>
-        </label>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for msg in messages %}
-              <p class="form-error">{{ msg }}</p>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        <button class="accent-button" type="submit">Створити акаунт</button>
-        <p class="small">
-          Уже є акаунт?
-          <a class="link-inline" href="{{ url_for('auth_routes.login') }}">Увійти</a>
-        </p>
-        <p class="small">
-          <a class="link-inline" href="{{ url_for('home') }}">Продовжити без реєстрації →</a>
-        </p>
-      </form>
+    <div class="auth-features">
+      <span class="auth-chip">Римські</span>
+      <span class="auth-chip">Єгипетські</span>
+      <span class="auth-chip">Тайські</span>
+      <span class="auth-chip">Арабські</span>
+    </div>
+
+    <form method="POST" class="auth-body">
+      <label>
+        Ім'я користувача
+        <input type="text" name="username" placeholder="numerix_fan" required>
+      </label>
+      <label>
+        Email
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </label>
+      <label>
+        Пароль
+        <input type="password" name="password" placeholder="••••••••" required>
+      </label>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <p class="form-error">{{ msg }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <button class="accent-button" type="submit">Створити акаунт</button>
+    </form>
+
+    <div class="auth-footer">
+      <p class="small">
+        Уже є акаунт?
+        <a class="link-inline" href="{{ url_for('auth_routes.login') }}">Увійти</a>
+      </p>
+      <p class="small">
+        <a class="link-inline muted-link" href="{{ url_for('home') }}">Продовжити без реєстрації →</a>
+      </p>
     </div>
   </section>
 </main>

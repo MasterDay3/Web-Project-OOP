@@ -14,12 +14,12 @@
     <main class="shell">
         <section class="hero">
             <p class="eyebrow">Рейтинг</p>
-            <h1>Рейтинг 🏆</h1>
+            <h1>Рейтинг</h1>
         </section>
 
         <div class="lb-tabs">
             <button class="lb-tab active" onclick="showTab('xp')">За XP</button>
-            <button class="lb-tab" onclick="showTab('streak')">За стріком 🔥</button>
+            <button class="lb-tab" onclick="showTab('streak')">За стріком <i data-lucide="flame"></i></button>
         </div>
 
         <!-- Топ по XP -->
@@ -37,9 +37,9 @@
                     {% for user in by_xp %}
                     <tr class="{{ 'lb-me' if user.id == current_user.id else '' }}">
                         <td class="lb-rank">
-                            {% if loop.index == 1 %}🥇
-                            {% elif loop.index == 2 %}🥈
-                            {% elif loop.index == 3 %}🥉
+                            {% if loop.index == 1 %}<i data-lucide="medal" class="medal-gold"></i>
+                            {% elif loop.index == 2 %}<i data-lucide="medal" class="medal-silver"></i>
+                            {% elif loop.index == 3 %}<i data-lucide="medal" class="medal-bronze"></i>
                             {% else %}{{ loop.index }}
                             {% endif %}
                         </td>
@@ -67,15 +67,15 @@
                     {% for user in by_streak %}
                     <tr class="{{ 'lb-me' if user.id == current_user.id else '' }}">
                         <td class="lb-rank">
-                            {% if loop.index == 1 %}🥇
-                            {% elif loop.index == 2 %}🥈
-                            {% elif loop.index == 3 %}🥉
+                            {% if loop.index == 1 %}<i data-lucide="medal" class="medal-gold"></i>
+                            {% elif loop.index == 2 %}<i data-lucide="medal" class="medal-silver"></i>
+                            {% elif loop.index == 3 %}<i data-lucide="medal" class="medal-bronze"></i>
                             {% else %}{{ loop.index }}
                             {% endif %}
                         </td>
                         <td class="lb-name">{{ user.username }}</td>
                         <td>Рів. {{ user.level }}</td>
-                        <td class="lb-score">🔥 {{ user.streak }}</td>
+                        <td class="lb-score"><i data-lucide="flame"></i> {{ user.streak }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

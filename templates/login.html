@@ -2,45 +2,45 @@
 {% block content %}
 <main class="auth-shell">
   <section class="auth-card">
-    <div class="auth-hero">
-      <div class="brand-badge">𝜈</div>
-      <p class="eyebrow">Numerix • тренування чисел</p>
-      <h1>Вітаємо назад!</h1>
-      <p class="subtext">Продовжуй серію і тренуй арабські, римські, єгипетські й тайські числа.</p>
-      <ul class="hero-points">
-        <li>🎯 Денна мета та рівні</li>
-        <li>🏆 Досягнення за серію днів</li>
-        <li>🧠 Швидкі вправи конвертації</li>
-      </ul>
+    <div class="auth-banner">
+      <div class="banner-nums" aria-hidden="true">
+        <span>XIV</span><span>𓎆𓏺</span><span>๗</span><span>42</span><span>VII</span><span>๓</span><span>𓎆</span><span>IX</span>
+      </div>
+      <div class="banner-content">
+        <div class="brand-badge">𝜈</div>
+        <p class="banner-label">Numerix</p>
+        <h1>Вітаємо назад!</h1>
+        <p class="banner-sub">Твоя серія та прогрес чекають</p>
+      </div>
     </div>
 
-    <div class="auth-form">
-      <h2>Увійти</h2>
-      <form method="POST">
-        <label>
-          Email
-          <input type="email" name="email" placeholder="you@example.com" required>
-        </label>
-        <label>
-          Пароль
-          <input type="password" name="password" placeholder="••••••••" required>
-        </label>
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for msg in messages %}
-              <p class="form-error">{{ msg }}</p>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        <button class="accent-button" type="submit">Увійти</button>
-        <p class="small">
-          Немає акаунта?
-          <a class="link-inline" href="{{ url_for('auth_routes.register') }}">Зареєструватися</a>
-        </p>
-        <p class="small">
-          <a class="link-inline" href="{{ url_for('home') }}">Продовжити без реєстрації →</a>
-        </p>
-      </form>
+    <form method="POST" class="auth-body">
+      <label>
+        Email
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </label>
+      <label>
+        Пароль
+        <input type="password" name="password" placeholder="••••••••" required>
+      </label>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <p class="form-error">{{ msg }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <button class="accent-button" type="submit">Увійти</button>
+    </form>
+
+    <div class="auth-footer">
+      <p class="small">
+        Немає акаунта?
+        <a class="link-inline" href="{{ url_for('auth_routes.register') }}">Зареєструватися</a>
+      </p>
+      <p class="small">
+        <a class="link-inline muted-link" href="{{ url_for('home') }}">Продовжити без реєстрації →</a>
+      </p>
     </div>
   </section>
 </main>

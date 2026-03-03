@@ -187,6 +187,7 @@
     </section>
   </main>
 
+  <script src="{{ url_for('static', filename='js/custom-select.js') }}"></script>
   <script>
   // ── Numeral data ───────────────────────────────────────────────────────────
   const ROMAN_TABLE = [
@@ -560,6 +561,8 @@
 
   swapBtn.addEventListener('click', () => {
     [fromSel.value, toSel.value] = [toSel.value, fromSel.value];
+    fromSel.dispatchEvent(new Event('change', { bubbles: true }));
+    toSel.dispatchEvent(new Event('change', { bubbles: true }));
     const prev_result = resultEl.textContent;
     if (prev_result && prev_result !== '—' && !prev_result.startsWith('Помилка')) {
       input.value = prev_result;

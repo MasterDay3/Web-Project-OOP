@@ -331,7 +331,7 @@
 
             const ft = document.getElementById('mk-feedback-text');
             ft.className = data.is_correct ? 'ok' : 'err';
-            ft.textContent = data.is_correct ? `✅ Правильно! +${data.xp_gained} XP` : `❌ Правильна відповідь: ${data.correct}`;
+            ft.textContent = data.is_correct ? `Правильно! +${data.xp_gained} XP` : `Неправильно. Правильна відповідь: ${data.correct}`;
             document.getElementById('mk-feedback').style.display = 'block';
         }
 

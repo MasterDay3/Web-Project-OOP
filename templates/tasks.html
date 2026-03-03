@@ -23,11 +23,11 @@
                 <label class="setting-group">
                     <span>Система</span>
                     <select id="system-select">
-                        <option value="roman">Римські 🏛️</option>
-                        <option value="arabic">Арабські 🔢</option>
-                        <option value="egyptian">Єгипетські 𓂀</option>
-                        <option value="thai">Тайські 🇹🇭</option>
-                        <option value="binary">Двійкові 💻</option>
+                        <option value="roman">Римські</option>
+                        <option value="arabic">Арабські</option>
+                        <option value="egyptian">Єгипетські</option>
+                        <option value="thai">Тайські</option>
+                        <option value="binary">Двійкові</option>
                     </select>
                 </label>
                 <label class="setting-group">
@@ -46,9 +46,9 @@
         <section class="glass-card task-card" id="task-card" style="display:none">
             <div class="task-meta">
                 <span id="task-system" class="task-badge"></span>
-                <span id="task-streak">🔥 Стрік: <b id="streak-val">0</b></span>
-                <span id="task-xp">⚡ XP: <b id="xp-val">{{ current_user.xp }}</b></span>
-                <span id="task-progress">📋 Сьогодні: <b id="today-val">0</b> / <b id="goal-val">{{
+                <span id="task-streak"><i data-lucide="flame"></i> Стрік: <b id="streak-val">0</b></span>
+                <span id="task-xp"><i data-lucide="zap"></i> XP: <b id="xp-val">{{ current_user.xp }}</b></span>
+                <span id="task-progress"><i data-lucide="clipboard-list"></i> Сьогодні: <b id="today-val">0</b> / <b id="goal-val">{{
                         current_user.daily_goal }}</b></span>
             </div>
 
@@ -183,6 +183,7 @@
         }
     </style>
 
+    <script src="{{ url_for('static', filename='js/custom-select.js') }}"></script>
     <script>
         const startBtn = document.getElementById('start-btn');
         const taskCard = document.getElementById('task-card');
@@ -248,8 +249,8 @@
             // фідбек
             feedbackText.className = data.is_correct ? 'ok' : 'err';
             feedbackText.textContent = data.is_correct
-                ? `✅ Правильно! +${data.xp_gained} XP`
-                : `❌ Неправильно. Правильна відповідь: ${data.correct}`;
+                ? `Правильно! +${data.xp_gained} XP`
+                : `Неправильно. Правильна відповідь: ${data.correct}`;
 
             // оновлюємо статистику
             xpVal.textContent = data.total_xp;
@@ -258,7 +259,7 @@
             goalVal.textContent = data.goal;
 
             if (data.goal_met) {
-                feedbackText.textContent += ' 🎯 Денну ціль досягнуто!';
+                feedbackText.textContent += ' — Денну ціль досягнуто!';
             }
 
             feedback.style.display = 'block';

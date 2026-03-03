@@ -181,32 +181,29 @@ def calculate():
     )
 
 
-@app.route("/calculator", methods=["GET", "POST"])
+@app.route("/calculator", methods=["GET"])
 def calculator_page():
-    expr = ""
-    system = "roman"
-    calc_result = None
-    calc_error = None
-    if request.method == "POST":
-        expr = request.form.get("expr", "")
-        system = request.form.get("system", "roman")
-        parsed = parse_calc_expression(expr)
-        if not parsed:
-            calc_error = "Не вдалося розібрати вираз"
-        else:
-            n1, op, n2 = parsed
-            try:
-                calc = Calculator(n1, op, n2, system)
-                calc_result = calc.calculate()
-            except Exception as e:
-                calc_error = f"Помилка: {e}"
-    return render_template(
-        "calculator.html",
-        expr=expr,
-        calc_result=calc_result,
-        calc_error=calc_error,
-        system=system,
-    )
+    return render_template("calculator.html", expr="", calc_result=None, calc_error=None, system="roman")
+
+
+@app.route("/api/calculate", methods=["POST"])
+def api_calculate():
+    data = request.get_json(force=True)
+    expr = data.get("expr", "")
+    system = data.get("system", "roman")
+    parsed = parse_calc_expression(expr)
+    if not parsed:
+        return jsonify({"result": None, "error": "Не вдалося розібрати вираз"})
+    n1, op, n2 = parsed
+    try:
+        calc = Calculator(n1, op, n2, system)
+        result = str(calc.calculate())
+        import re as _re
+        if _re.search(r'[а-яА-ЯіІїЇєЄґҐ]', result):
+            return jsonify({"result": None, "error": result})
+        return jsonify({"result": result, "error": None})
+    except Exception as e:
+        return jsonify({"result": None, "error": str(e)})
 
 
 if __name__ == "__main__":
