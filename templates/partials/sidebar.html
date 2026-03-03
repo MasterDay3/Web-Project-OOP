@@ -38,6 +38,10 @@
   </div>
 
   <div class="sidebar-bottom">
+    <button type="button" class="theme-toggle" id="theme-toggle">
+      <span class="theme-toggle-icon"><i data-lucide="moon"></i></span>
+      <span class="theme-toggle-label">Темна тема</span>
+    </button>
     {% if current_user.is_authenticated %}
     <a href="{{ url_for('profile_routes.profile') }}" class="sidebar-link {{ 'active' if active == 'profile' }}">
       <span class="sidebar-icon"><i data-lucide="user"></i></span> Профіль
@@ -58,3 +62,4 @@
 
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>lucide.createIcons();</script>
+<script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>

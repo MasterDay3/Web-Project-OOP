@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Numerix · Калькулятор</title>
+  {% include 'partials/theme-init.html' %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
 </head>
 <body class="page-light">
   {% set active = 'calculator' %}
@@ -23,8 +25,8 @@
           <label class="calc-system">
             <span>Система</span>
             <select id="system-select">
-              <option value="roman" selected>Римські</option>
-              <option value="arabic">Арабські</option>
+              <option value="arabic" selected>Арабські</option>
+              <option value="roman">Римські</option>
               <option value="egyptian">Єгипетські</option>
               <option value="thai">Тайські</option>
             </select>
@@ -181,8 +183,8 @@
       display.placeholder = placeholders[system] || placeholders.roman;
     }
 
-    renderPad(systemSelect.value || 'roman');
-    renderHint(systemSelect.value || 'roman');
+    renderPad(systemSelect.value || 'arabic');
+    renderHint(systemSelect.value || 'arabic');
 
     const resultSlot = document.getElementById('calc-result');
 

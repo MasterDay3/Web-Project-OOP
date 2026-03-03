@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Numerix · Статистика</title>
+    {% include 'partials/theme-init.html' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 
@@ -79,9 +81,17 @@
     </style>
 
     <script>
-        const ACCENT = '#b21f1f';
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const ACCENT = isDark ? '#e86a6a' : '#b21f1f';
         const GREEN = '#22c55e';
-        const COLORS = ['#b21f1f', '#3b82f6', '#f59e0b', '#22c55e', '#8b5cf6'];
+        const COLORS = isDark
+            ? ['#e86a6a', '#60a5fa', '#fbbf24', '#4ade80', '#a78bfa']
+            : ['#b21f1f', '#3b82f6', '#f59e0b', '#22c55e', '#8b5cf6'];
+
+        if (isDark) {
+            Chart.defaults.color = '#9b9498';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+        }
 
         async function loadCharts() {
             const res = await fetch('/stats/data');
@@ -166,6 +176,7 @@
                         data: data.systems_done,
                         backgroundColor: COLORS,
                         borderWidth: 2,
+                        borderColor: isDark ? '#1e1c24' : '#fff',
                     }]
                 },
                 options: {

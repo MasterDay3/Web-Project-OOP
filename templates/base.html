@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ title if title else "My Numbers App" }}</title>
+    {% include 'partials/theme-init.html' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body class="page-light">
     <div class="bg-symbols" aria-hidden="true"></div>
     <script src="{{ url_for('static', filename='js/bg-symbols.js') }}"></script>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <button type="button" class="theme-toggle-float" id="theme-toggle">
+        <i data-lucide="moon"></i>
+    </button>
+    {% block content %}{% endblock %}
     <script>lucide.createIcons();</script>
+    <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
 </body>
 </html>

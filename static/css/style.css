@@ -1160,6 +1160,7 @@ i[data-lucide] svg, [data-lucide] { width: 1em; height: 1em; }
 
 .dashboard-alert {
     padding: 14px 16px;
+    margin-bottom: 18px;
     background: #fff9f7;
     border: 1px solid #f1d9d9;
     border-radius: 14px;
