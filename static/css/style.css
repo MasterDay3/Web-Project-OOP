@@ -15,6 +15,9 @@
 }
 
 * { box-sizing: border-box; }
+html.no-transitions, html.no-transitions *, html.no-transitions *::before, html.no-transitions *::after {
+    transition: none !important;
+}
 html { overscroll-behavior: none; }
 
 body {

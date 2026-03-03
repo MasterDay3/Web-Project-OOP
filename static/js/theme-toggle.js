@@ -23,10 +23,16 @@
   }
 
   toggle.addEventListener('click', function() {
+    html.classList.add('no-transitions');
     var newTheme = isDark() ? 'light' : 'dark';
     html.setAttribute('data-theme', newTheme);
     localStorage.setItem(STORAGE_KEY, newTheme);
     updateToggle();
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        html.classList.remove('no-transitions');
+      });
+    });
   });
 
   updateToggle();
