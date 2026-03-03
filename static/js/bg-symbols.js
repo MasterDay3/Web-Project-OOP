@@ -43,4 +43,27 @@
       container.appendChild(span);
     }
   }
+
+  /* ── Mouse proximity glow ── */
+  var spans = container.querySelectorAll('span');
+  var RADIUS = 45;
+  var active = [];
+
+  document.addEventListener('mousemove', function (e) {
+    var mx = e.clientX, my = e.clientY;
+    for (var i = 0; i < active.length; i++) {
+      active[i].classList.remove('bg-near');
+    }
+    active = [];
+    for (var j = 0; j < spans.length; j++) {
+      var rect = spans[j].getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var dx = mx - cx, dy = my - cy;
+      if (dx * dx + dy * dy < RADIUS * RADIUS) {
+        spans[j].classList.add('bg-near');
+        active.push(spans[j]);
+      }
+    }
+  });
 })();
