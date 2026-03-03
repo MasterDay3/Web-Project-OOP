@@ -76,6 +76,11 @@
     box-shadow: 0 22px 56px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
+[data-theme="dark"] .hero {
+    background: rgba(30,28,36,0.75);
+    backdrop-filter: blur(6px);
+}
+
 /* ── C: Hover/focus surfaces ───────────────────────────────── */
 [data-theme="dark"] .cs-trigger {
     background: #1e1c24;
