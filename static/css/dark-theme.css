@@ -19,18 +19,34 @@
 
 /* ── B: Body, page, sidebar, surfaces ──────────────────────── */
 [data-theme="dark"] body {
-    background: #141218;
+    background:
+        radial-gradient(ellipse at 10% 15%, rgba(214,69,69,0.10) 0, transparent 50%),
+        radial-gradient(ellipse at 90% 85%, rgba(140,80,50,0.08) 0, transparent 50%),
+        radial-gradient(ellipse at 50% 0%, rgba(40,20,30,0.5) 0, transparent 45%),
+        radial-gradient(ellipse at 70% 50%, rgba(214,69,69,0.05) 0, transparent 40%);
+    background-color: #141218;
+    background-attachment: fixed;
     color: #e8e4e0;
 }
 
 [data-theme="dark"] .page-light {
-    background: #141218;
+    background:
+        radial-gradient(ellipse at 10% 15%, rgba(214,69,69,0.10) 0, transparent 50%),
+        radial-gradient(ellipse at 90% 85%, rgba(140,80,50,0.08) 0, transparent 50%),
+        radial-gradient(ellipse at 50% 0%, rgba(40,20,30,0.5) 0, transparent 45%),
+        radial-gradient(ellipse at 70% 50%, rgba(214,69,69,0.05) 0, transparent 40%);
+    background-color: #141218;
+    background-attachment: fixed;
 }
 
 [data-theme="dark"] .sidebar {
-    background: linear-gradient(180deg, #1a1820 0%, #1c1a24 40%, #1e1c26 100%);
-    border-right: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 4px 0 32px rgba(0,0,0,0.3);
+    background: rgba(26,24,32,0.82);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+        0 8px 40px rgba(0,0,0,0.3),
+        0 1px 3px rgba(0,0,0,0.2);
 }
 
 [data-theme="dark"] .sidebar-bottom {

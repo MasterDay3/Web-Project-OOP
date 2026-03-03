@@ -35,6 +35,11 @@
       var cls = sizes[Math.floor(Math.random() * sizes.length)];
       if (cls) span.className = cls;
 
+      var delay = (Math.random() * 6).toFixed(2);
+      var duration = (3 + Math.random() * 4).toFixed(2);
+      span.style.animationDelay = delay + 's';
+      span.style.animationDuration = duration + 's';
+
       container.appendChild(span);
     }
   }
