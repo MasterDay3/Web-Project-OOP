@@ -1,4 +1,5 @@
 # tasks.py
+import csv
 import random
 from numsystems import Convertor
 
@@ -7,6 +8,9 @@ class TaskGenerator:
     """Генерує задачі multiple choice для різних систем числення."""
 
     SYSTEMS = ["roman", "arabic", "egyptian", "thai", "binary"]
+
+    MISTAKES_FILE = "mistakes.csv"
+    CSV_FIELDS = ["question", "answer", "system", "difficulty"]
 
     DIFFICULTY_RANGES = {
         "easy": (1, 20),
@@ -116,3 +120,75 @@ class TaskGenerator:
             "system": system,
             "difficulty": difficulty,
         }
+ # ── MISTAKES CSV ───────────────────────────────────────────────────────
+    def record_mistake(self, task: dict) -> None:
+        """Зберігає завдання в CSV при неправильній відповіді (без дублів)."""
+        mistakes = self._load_mistakes()
+        already_exists = False
+        for m in mistakes:
+            if m["question"] == task["question"]:
+                already_exists = True
+                break
+        if not already_exists:
+            mistakes.append({k: task[k] for k in CSV_FIELDS})
+            self._save_mistakes(mistakes)
+
+    def retry_mistake(self, task: dict) -> dict:
+        """
+        Повертає те саме завдання з новими варіантами відповідей
+        (1 правильна + 3 нові рандомні дистрактори).
+        """
+        low, high = self.DIFFICULTY_RANGES[task["difficulty"]]
+        answer = task["answer"]
+
+        if task["system"] == "arabic":
+            # відповідь — римське число
+            new_distractors: set[str] = set()
+            while len(new_distractors) < 3:
+                n = random.randint(low, min(high, 3999))
+                r = Convertor(str(n)).convert_to_roman()
+                if r != answer:
+                    new_distractors.add(r)
+        else:
+            # відповідь — арабське число
+            correct_int = int(answer)
+            new_distractors: set[str] = set()
+            attempts = 0
+            while len(new_distractors) < 3 and attempts < 200:
+                attempts += 1
+                offset = random.randint(-15, 15)
+                candidate = correct_int + offset
+                if candidate != correct_int and low <= candidate <= high:
+                    new_distractors.add(str(candidate))
+
+        options = [answer] + list(new_distractors)[:3]
+        random.shuffle(options)
+        return {**task, "options": options}
+
+    def check_mistake(self, task: dict, user_answer: str) -> bool:
+        """
+        Перевіряє повторну відповідь на «помилкове» завдання.
+        Правильно → видаляє з CSV, повертає True.
+        Неправильно → залишає в CSV, повертає False.
+        """
+        correct = task["answer"] == user_answer
+        if correct:
+            mistakes = self._load_mistakes()
+            mistakes = [m for m in mistakes if m["question"] != task["question"]]
+            self._save_mistakes(mistakes)
+        return correct
+
+    def get_mistake_tasks(self) -> list[dict]:
+        """Повертає всі збережені помилкові завдання з новими варіантами відповідей."""
+        return [self.retry_mistake(m) for m in self._load_mistakes()]
+
+    def _load_mistakes(self) -> list[dict]:
+        with open(MISTAKES_FILE, newline="", encoding="utf-8") as f:
+            return list(csv.DictReader(f))
+
+    def _save_mistakes(self, mistakes: list[dict]) -> None:
+        with open(MISTAKES_FILE, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+            writer.writeheader()
+            writer.writerows(mistakes)
+    
