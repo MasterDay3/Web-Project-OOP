@@ -211,6 +211,25 @@
 
   // ── Breakdown computers ────────────────────────────────────────────────────
 
+  function tokensArabicToArabic(numStr) {
+      // For Arabic to Arabic with decimals
+      if (numStr.includes('.')) {
+        const [intPart, decPart] = numStr.split('.');
+        const intTokens = intPart.split('').map((d) => {
+          return { symbol: d, arabic: parseInt(d) };
+        });
+        const decTokens = decPart.split('').map((d) => {
+          return { symbol: d, arabic: parseInt(d) };
+        });
+        return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
+      }
+
+      const digits = numStr.split('');
+      return digits.map((d) => {
+        return { symbol: d, arabic: parseInt(d) };
+      });
+  }
+
   function tokensArabicToRoman(num) {
     const tokens = [];
     for (const [val, sym] of ROMAN_TABLE) {
@@ -254,15 +273,31 @@
   }
 
   function tokensArabicToThai(numStr) {
-    const digits = numStr.replace('-','').split('');
-    const len = digits.length;
-    return digits.map((d, i) => {
-      const place = Math.pow(10, len - 1 - i);
-      const val = parseInt(d) * place;
-      const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[parseInt(d)];
-      return { symbol: thaiDigit, arabic: val === 0 ? 0 : val };
+  // Handle decimal point separately
+  if (numStr.includes('.')) {
+    const [intPart, decPart] = numStr.split('.');
+    const intTokens = intPart.split('').map((d) => {
+      const digitVal = parseInt(d);
+      const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
+      return { symbol: thaiDigit, arabic: digitVal };
     });
+    const decTokens = decPart.split('').map((d) => {
+      const digitVal = parseInt(d);
+      const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
+      return { symbol: thaiDigit, arabic: digitVal };
+    });
+    // Insert decimal point token
+    return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
   }
+
+  // No decimal - original logic
+  const digits = numStr.replace('-','').split('');
+  return digits.map((d) => {
+    const digitVal = parseInt(d);
+    const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
+    return { symbol: thaiDigit, arabic: digitVal };
+  });
+}
 
   function tokensEgyptianToArabic(str) {
     const tokens = [];
@@ -274,14 +309,31 @@
   }
 
   function tokensThaiToArabic(str) {
-    const digits = [...str].filter(ch => THAI_DIGITS[ch] !== undefined);
-    const len = digits.length;
-    return digits.map((d, i) => {
-      const place = Math.pow(10, len - 1 - i);
-      const val = THAI_DIGITS[d] * place;
+  // Handle decimal point
+  if (str.includes('.')) {
+    const [intPart, decPart] = str.split('.');
+    const intDigits = [...intPart].filter(ch => THAI_DIGITS[ch] !== undefined);
+    const decDigits = [...decPart].filter(ch => THAI_DIGITS[ch] !== undefined);
+
+    const intTokens = intDigits.map((d) => {
+      const val = THAI_DIGITS[d];
       return { symbol: d, arabic: val };
     });
+    const decTokens = decDigits.map((d) => {
+      const val = THAI_DIGITS[d];
+      return { symbol: d, arabic: val };
+    });
+
+    return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
   }
+
+  // No decimal - original logic
+  const digits = [...str].filter(ch => THAI_DIGITS[ch] !== undefined);
+  return digits.map((d) => {
+    const val = THAI_DIGITS[d];
+    return { symbol: d, arabic: val };
+  });
+}
 
   function getArabicFromSource(fromSys, inputVal) {
     if (fromSys === 'arabic') return parseInt(inputVal);
@@ -306,6 +358,10 @@
         }
         if (fromSys === 'thai') {
           const toks = tokensThaiToArabic(inputVal);
+          return toks.length ? { tokens: toks, resultLabel: result + ' (Арабські)' } : null;
+        }
+        if (fromSys === 'arabic') {
+          const toks = tokensArabicToArabic(inputVal);
           return toks.length ? { tokens: toks, resultLabel: result + ' (Арабські)' } : null;
         }
       }
@@ -352,20 +408,47 @@
     equalsEl.style.opacity = 0;
 
     tokens.forEach((tok, idx) => {
-      if (idx > 0) {
-        const plus = document.createElement('span');
-        plus.className = 'token-plus';
-        plus.textContent = '+';
-        stage.appendChild(plus);
-      }
-      const card = document.createElement('div');
-      card.className = 'token-card';
-      card.innerHTML = `
-        <span class="tc-symbol">${tok.symbol}</span>
-        <span class="tc-value">${tok.arabic !== null ? tok.arabic.toLocaleString() : ''}</span>
-      `;
-      stage.appendChild(card);
-    });
+  // Skip adding "+" before decimal point
+  if (idx > 0 && !tok.isDecimal && !tokens[idx-1]?.isDecimal) {
+    const plus = document.createElement('span');
+    plus.className = 'token-plus';
+    plus.textContent = '+';
+    stage.appendChild(plus);
+  }
+
+  if (tok.isDecimal) {
+    // Render decimal point without card
+    const decimal = document.createElement('span');
+    decimal.className = 'token-decimal';
+    decimal.textContent = '.';
+    decimal.style.cssText = 'font-size: 28px; font-weight: 800; color: var(--ink); padding: 0 4px;';
+    stage.appendChild(decimal);
+  } else if (tok.isSub) {
+    // Subtractive pair: show hi − lo = value
+    const group = document.createElement('div');
+    group.className = 'token-group';
+    group.innerHTML = `
+      <div class="token-card tg-card">
+        <span class="tc-symbol">${tok.hi}</span>
+        <span class="tc-value">${tok.hv.toLocaleString()}</span>
+      </div>
+      <span class="token-minus">−</span>
+      <div class="token-card tg-card">
+        <span class="tc-symbol">${tok.lo}</span>
+        <span class="tc-value">${tok.lv.toLocaleString()}</span>
+      </div>
+    `;
+    stage.appendChild(group);
+  } else {
+    const card = document.createElement('div');
+    card.className = 'token-card';
+    card.innerHTML = `
+      <span class="tc-symbol">${tok.symbol}</span>
+      <span class="tc-value">${tok.arabic !== null ? tok.arabic.toLocaleString() : ''}</span>
+    `;
+    stage.appendChild(card);
+  }
+});
 
     eqResult.textContent = result;
     eqLabel.textContent  = resultLabel.split('(')[1]?.replace(')','') || '';
@@ -410,7 +493,8 @@
     ],
     arabic: [
       { sym: '0' }, { sym: '1' }, { sym: '2' }, { sym: '3' }, { sym: '4' },
-      { sym: '5' }, { sym: '6' }, { sym: '7' }, { sym: '8' }, { sym: '9' }
+      { sym: '5' }, { sym: '6' }, { sym: '7' }, { sym: '8' }, { sym: '9' },
+      { sym: '.' }
     ],
     egyptian: [
       { sym: '𓏺', val: '1' }, { sym: '𓎆', val: '10' },
@@ -423,7 +507,8 @@
       { sym: '๒', val: '2' }, { sym: '๓', val: '3' },
       { sym: '๔', val: '4' }, { sym: '๕', val: '5' },
       { sym: '๖', val: '6' }, { sym: '๗', val: '7' },
-      { sym: '๘', val: '8' }, { sym: '๙', val: '9' }
+      { sym: '๘', val: '8' }, { sym: '๙', val: '9' },
+      { sym: '.' }
     ]
   };
 
