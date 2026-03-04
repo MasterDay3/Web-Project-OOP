@@ -67,6 +67,23 @@
 
     <style>
         .task-settings {
+            position: sticky;
+            top: 0;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+        }
+
+        /* Ensure task card doesn't overlap */
+        .task-card {
+            position: relative;
+            z-index: 5;
+        }
+        .task-settings {
             padding: 24px 28px;
             margin-bottom: 20px;
         }

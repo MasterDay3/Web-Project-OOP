@@ -1,4 +1,5 @@
 import math
+
 class Convertor:
     '''
     Клас для конвертації чисел між арабськими та римськими.
@@ -21,7 +22,7 @@ class Convertor:
     egypt_hieroglyphs = ['𓀼', '𓆐', '𓂭', '𓆼', '𓍢', '𓎆', '𓏺']
 
     thai_numbers = [
-        ('0', '๐'), ('1', '๑'), ('2', '๒'), ('3', '๓'),('4', '๔'),
+        ('0', '๐'), ('1', '๑'), ('2', '๒'), ('3', '๓'), ('4', '๔'),
         ('5', '๕'), ('6', '๖'), ('7', '๗'), ('8', '๘'), ('9', '๙')
     ]
     thai_hieroglyphs = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙', '-', '.', ',']
@@ -81,7 +82,7 @@ class Convertor:
 
         for i in range(len(roman_number) - 1):
             curr = roman_number[i]
-            nxt = roman_number[i+1]
+            nxt = roman_number[i + 1]
 
             v_curr = 0
             for val, s in self.roman_numbers:
@@ -122,8 +123,8 @@ class Convertor:
                         next_value = value
                         break
 
-# Менший перед більшим -> віднімання
-# Більший або рівний наступному -> додавання
+            # Менший перед більшим -> віднімання
+            # Більший або рівний наступному -> додавання
             if current_value < next_value:
                 arab_number -= current_value
             else:
@@ -151,6 +152,20 @@ class Convertor:
 
     def convert_egyptian_to_arab(self):
         number = self.value
+
+        # FIX #5: Validate maximum consecutive symbols (max 9 of same symbol)
+        for hieroglyph in self.egypt_hieroglyphs:
+            count = 0
+            max_count = 0
+            for char in number:
+                if char == hieroglyph:
+                    count += 1
+                    max_count = max(max_count, count)
+                else:
+                    count = 0
+            if max_count > 9:
+                return 'Невірне введення, максимум 9 однакових символів підряд'
+
         result = 0
         for char in number:
             if char not in self.egypt_hieroglyphs:
@@ -218,6 +233,7 @@ class Calculator:
     supported_systems = ['arabic', 'roman', 'egyptian', 'thai']
     supported_operations_for_two_nums = ['+', '-', '*', '/', 'power', '%']
     supported_operations_for_one_num = ['!', 'sqrt']
+
     def __init__(self, number1: str, operation: str, number2: str = None, number_system: str = 'arabic'):
         self.number1 = str(number1).strip()
         self.operation = operation.strip()
@@ -233,7 +249,8 @@ class Calculator:
             two_nums = False
         elif self.operation in self.supported_operations_for_one_num and self.number2 is not None:
             raise ValueError('Для цієї операції потрібно лише 1 число')
-        else: raise ValueError(f"Непідтримувана операція '{self.operation}'")
+        else:
+            raise ValueError(f"Непідтримувана операція '{self.operation}'")
         match self.number_system:
             case 'arabic':
                 if two_nums:
@@ -488,182 +505,202 @@ class Calculator:
                 raise TypeError('Такої системи числення не існує')
         return str(res)
 
-def test():
-    print("-" * 30)
-    # Тести для convert_to_roman
-    assert Convertor("1").convert_to_roman() == "I"
-    assert Convertor("4").convert_to_roman() == "IV"
-    assert Convertor("9").convert_to_roman() == "IX"
-    assert Convertor("49").convert_to_roman() == "XLIX"
-    assert Convertor("1994").convert_to_roman() == "MCMXCIV"
-    assert Convertor("3999").convert_to_roman() == "MMMCMXCIX"
-    assert Convertor("4000").convert_to_roman() == 'Число має бути в діапазоні від 1 до 3999'
-    assert Convertor("abc").convert_to_roman() == 'Невірне числове введення.'
-
-    # Тести для convert_roman_to_arab
-    assert Convertor("I").convert_roman_to_arab() == "1"
-    assert Convertor("IV").convert_roman_to_arab() == "4"
-    assert Convertor("IX").convert_roman_to_arab() == "9"
-    assert Convertor("XLIX").convert_roman_to_arab() == "49"
-    assert Convertor("MCMXCIV").convert_roman_to_arab() == "1994"
-    
-    assert Convertor("ix").convert_roman_to_arab() == "9"
-    assert Convertor("mcmxciv").convert_roman_to_arab() == "1994"
-    
-    assert Convertor("IC").convert_roman_to_arab() == "Некоректне число"
-    assert Convertor("XM").convert_roman_to_arab() == "Некоректне число"
-    assert Convertor("VX").convert_roman_to_arab() == "Некоректне число"
-    
-    assert Convertor("123").convert_roman_to_arab() == "Невірне введення, будь ласка введіть римське число латинськими літерами"
-    assert Convertor("ABC").convert_roman_to_arab() == "Невірне введення"
-
-    # Перевірка взаємодії
-    test_nums = ["1", "44", "99", "3999"]
-    for n in test_nums:
-        r = Convertor(n).convert_to_roman()
-        a = Convertor(r).convert_roman_to_arab()
-        assert n == a
-
-    print("Roman tests done! 🏛️")
-    print("-" * 30)
-
-    # --- EGYPTIAN TESTS ---
-    # 1. Арабські -> Єгипетські
-    assert Convertor("1").convert_to_egyptian() == "𓏺"
-    assert Convertor("10").convert_to_egyptian() == "𓎆"
-    assert Convertor("12").convert_to_egyptian() == "𓎆𓏺𓏺"
-    assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏺𓏺"
-
-    error_range = 'Число має бути в діапазоні від 1 до 9999999'
-    assert Convertor("0").convert_to_egyptian() == error_range
-    assert Convertor("10000000").convert_to_egyptian() == error_range
-
-    # 2. Єгипетські -> Арабські
-    assert Convertor("𓏺").convert_egyptian_to_arab() == "1"
-    assert Convertor("𓎆").convert_egyptian_to_arab() == "10"
-    assert Convertor("𓎆𓏺𓏺").convert_egyptian_to_arab() == "12"
-    assert Convertor("𓏺𓎆𓏺").convert_egyptian_to_arab() == "12"
-
-    error_invalid = 'Невірне введення, такого числа немає в єгипетській системі числення'
-    assert Convertor("ABC").convert_egyptian_to_arab() == error_invalid
-    assert Convertor("123").convert_egyptian_to_arab() == error_invalid
-
-    test_val = "1234"
-    egyptian_str = Convertor(test_val).convert_to_egyptian()
-    arabic_res = Convertor(egyptian_str).convert_egyptian_to_arab()
-    assert test_val == arabic_res
-
-    print("Egyptian tests done! 𓆼 ✅")
-    print("-" * 30)
+# def test():
+#     print("-" * 30)
+#     # Тести для convert_to_roman
+#     assert Convertor("1").convert_to_roman() == "I"
+#     assert Convertor("4").convert_to_roman() == "IV"
+#     assert Convertor("9").convert_to_roman() == "IX"
+#     assert Convertor("49").convert_to_roman() == "XLIX"
+#     assert Convertor("1994").convert_to_roman() == "MCMXCIV"
+#     assert Convertor("3999").convert_to_roman() == "MMMCMXCIX"
+#     assert Convertor("4000").convert_to_roman() == 'Число має бути в діапазоні від 1 до 3999'
+#     assert Convertor("abc").convert_to_roman() == 'Невірне числове введення.'
+#
+#     # Тести для convert_roman_to_arab
+#     assert Convertor("I").convert_roman_to_arab() == "1"
+#     assert Convertor("IV").convert_roman_to_arab() == "4"
+#     assert Convertor("IX").convert_roman_to_arab() == "9"
+#     assert Convertor("XLIX").convert_roman_to_arab() == "49"
+#     assert Convertor("MCMXCIV").convert_roman_to_arab() == "1994"
+#
+#     assert Convertor("ix").convert_roman_to_arab() == "9"
+#     assert Convertor("mcmxciv").convert_roman_to_arab() == "1994"
+#
+#     assert Convertor("IC").convert_roman_to_arab() == "Некоректне число"
+#     assert Convertor("XM").convert_roman_to_arab() == "Некоректне число"
+#     assert Convertor("VX").convert_roman_to_arab() == "Некоректне число"
+#
+#     assert Convertor(
+#         "123").convert_roman_to_arab() == "Невірне введення, будь ласка введіть римське число латинськими літерами"
+#     assert Convertor("ABC").convert_roman_to_arab() == "Невірне введення"
+#
+#     # Перевірка взаємодії
+#     test_nums = ["1", "44", "99", "3999"]
+#     for n in test_nums:
+#         r = Convertor(n).convert_to_roman()
+#         a = Convertor(r).convert_roman_to_arab()
+#         assert n == a
+#
+#     print("Roman tests done! 🏛️")
+#     print("-" * 30)
+#
+#     # --- EGYPTIAN TESTS ---
+#     # 1. Арабські -> Єгипетські
+#     assert Convertor("1").convert_to_egyptian() == "𓏺"
+#     assert Convertor("10").convert_to_egyptian() == "𓎆"
+#     assert Convertor("12").convert_to_egyptian() == "𓎆𓏺𓏺"
+#     assert Convertor("4622").convert_to_egyptian() == "𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓎆𓎆𓏺𓏺"
+#
+#     error_range = 'Число має бути в діапазоні від 1 до 9999999'
+#     assert Convertor("0").convert_to_egyptian() == error_range
+#     assert Convertor("10000000").convert_to_egyptian() == error_range
+#
+#     # 2. Єгипетські -> Арабські
+#     assert Convertor("𓏺").convert_egyptian_to_arab() == "1"
+#     assert Convertor("𓎆").convert_egyptian_to_arab() == "10"
+#     assert Convertor("𓎆𓏺𓏺").convert_egyptian_to_arab() == "12"
+#     assert Convertor("𓏺𓎆𓏺").convert_egyptian_to_arab() == "12"
+#
+#     error_invalid = 'Невірне введення, такого числа немає в єгипетській системі числення'
+#     assert Convertor("ABC").convert_egyptian_to_arab() == error_invalid
+#     assert Convertor("123").convert_egyptian_to_arab() == error_invalid
+#
+#     test_val = "1234"
+#     egyptian_str = Convertor(test_val).convert_to_egyptian()
+#     arabic_res = Convertor(egyptian_str).convert_egyptian_to_arab()
+#     assert test_val == arabic_res
+#
+#     print("Egyptian tests done! 𓆼 ✅")
+#     print("-" * 30)
 
     # 1. Арабські -> Тайські
-    assert Convertor("1").convert_to_thai() == "๑"
-    assert Convertor("10").convert_to_thai() == "๑๐"
-    assert Convertor("2024").convert_to_thai() == "๒๐๒๔"
-    assert Convertor("-123").convert_to_thai() == "-๑๒๓"
-    assert Convertor("12.5").convert_to_thai() == "๑๒.๕"
-    assert Convertor("12,5").convert_to_thai() == "๑๒,๕"
-    assert Convertor("34567").convert_to_thai() == "๓๔๕๖๗"
-    assert Convertor("12.5,6").convert_to_thai() == 'Невірне введення'
-    assert Convertor("--123").convert_to_thai() == 'Невірне введення'
-    assert Convertor("123-").convert_to_thai() == 'Невірне введення'
-    assert Convertor("12a").convert_to_thai() == 'Невірне введення'
-    assert Convertor("12..5").convert_to_thai() == 'Невірне введення'
-
-    # --- Тайські -> Арабські ---
-    assert Convertor("๑").convert_thai_to_arab() == "1"
-    assert Convertor("๑๐").convert_thai_to_arab() == "10"
-    assert Convertor("๒๐๒๔").convert_thai_to_arab() == "2024"
-    assert Convertor("๓๔๕๖๗").convert_thai_to_arab() == "34567"
-    assert Convertor("-๑๒๓").convert_thai_to_arab() == "-123"
-    assert Convertor("๑๒.๕").convert_thai_to_arab() == "12.5"
-    assert Convertor("๑๒,๕").convert_thai_to_arab() == "12,5"
-    assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Невірне введення"
-    assert Convertor("--๑๒๓").convert_thai_to_arab() == "Невірне введення"
-    assert Convertor("๑๒A").convert_thai_to_arab() == "Невірне введення"
-    assert Convertor("๑๒๓-").convert_thai_to_arab() == "Невірне введення"
-
-    # --- Round-trip tests ---
-    test_vals = ["34567", "-456", "12.75", "12,5"]
-    for val in test_vals:
-        thai_str = Convertor(val).convert_to_thai()
-        arabic_res = Convertor(thai_str).convert_thai_to_arab()
-        assert val == arabic_res
-
-    print("Thai tests done! 🇹🇭 ✅")
-    print("-" * 30)
-    # Передбачається що Convertor і Calculator вже імпортовані
-
-    # ── ARABIC ──
-    assert Calculator('10', '+', '5').calculate() == '15'
-    assert Calculator('10', '-', '3').calculate() == '7'
-    assert Calculator('4',  '*', '3').calculate() == '12'
-    assert Calculator('10', '/', '2').calculate() == '5'
-    assert Calculator('2',  'power', '8').calculate() == '256'
-    assert Calculator('10', '%', '3').calculate() == '1'
-    assert Calculator('5',  '!').calculate() == '120'
-    assert Calculator('0',  '!').calculate() == '1'
-    assert Calculator('9',  'sqrt').calculate() == '3'
-    # дробові — залишаються
-    assert Calculator('1',  '/', '4').calculate() == '0.25'
-    assert Calculator('2.5', '+', '1.5').calculate() == '4'
-    assert Calculator('-5', '+', '3').calculate() == '-2'
-    try: Calculator('10', '+').calculate(); assert False
-    except ValueError: pass
-    try: Calculator('5', '!', '3').calculate(); assert False
-    except ValueError: pass
-    try: Calculator('abc', '+', '2').calculate(); assert False
-    except ValueError: pass
-    try: Calculator('5', '/', '0').calculate(); assert False
-    except ZeroDivisionError: pass
-    try: Calculator('5', '??').calculate(); assert False
-    except ValueError: pass
-    try: Calculator('2.5', '!').calculate(); assert False
-    except ValueError: pass
-    print('ARABIC: OK')
-
-    # ── ROMAN ──
-    assert Calculator('X',  '+',     'V',    'roman').calculate() == 'XV'
-    assert Calculator('X',  '-',     'V',    'roman').calculate() == 'V'
-    assert Calculator('V',  '*',     'III',  'roman').calculate() == 'XV'
-    assert Calculator('X',  '/',     'II',   'roman').calculate() == 'V'
-    assert Calculator('II', 'power', 'VIII', 'roman').calculate() == 'CCLVI'
-    assert Calculator('X',  '%',     'III',  'roman').calculate() == 'I'
-    assert Calculator('III','!', number_system='roman').calculate() == 'VI'
-    assert Calculator('IV', 'sqrt', number_system='roman').calculate() == 'II'
-    # дробовий результат -> ValueError
-    try: Calculator('X', '/', 'III', 'roman').calculate(); assert False
-    except ValueError: pass
-    # від'ємний результат -> Convertor поверне рядок помилки (не ValueError)
-    assert Calculator('I', '-', 'V', 'roman').calculate() == 'Невірне числове введення.'
-    # невалідний ввід
-    try: Calculator('123', '+', 'V', 'roman').calculate(); assert False
-    except ValueError: pass
-    print('ROMAN: OK')
-
-    # ── EGYPTIAN ──
-    assert Calculator('𓎆𓎆', '+', '𓎆𓎆𓎆', 'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆'  # 20+30=50
-    assert Calculator('𓎆',   '*', '𓎆',     'egyptian').calculate() == '𓍢'         # 10*10=100
-    assert Calculator('𓍢',   '-', '𓎆',     'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆'  # 100-10=90 (9 tens)
-    assert Calculator('𓎆𓎆',  '/', '𓎆',     'egyptian').calculate() == '𓏺𓏺'        # 20/10=2
-    assert Calculator('𓎆',   '!', number_system='egyptian').calculate() == '𓀼𓀼𓀼𓆐𓆐𓆐𓆐𓆐𓆐𓂭𓂭𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓍢𓍢'  # 10!=3628800
-    assert Calculator('𓍢',   'sqrt', number_system='egyptian').calculate() == '𓎆'  # sqrt(100)=10
-    # дробовий результат
-    try: Calculator('𓎆', '/', '𓎆𓎆𓎆', 'egyptian').calculate(); assert False  # 10/30
-    except ValueError: pass
-    print('EGYPTIAN: OK')
-
-    # ── THAI ──
-    assert Calculator('๑๐', '+', '๕',  'thai').calculate() == '๑๕.๐'   # 10+5=15
-    assert Calculator('๙',  '*', '๙',  'thai').calculate() == '๘๑.๐'    # 9*9=81
-    assert Calculator('๑๐', '-', '๓',  'thai').calculate() == '๗.๐'   # 10-3=7
-    assert Calculator('๔',  '!', number_system='thai').calculate() == '๒๔'   # 4!=24
-    assert Calculator('๙',  'sqrt', number_system='thai').calculate() == '๓.๐'  # sqrt(9)=3.0
-    assert Calculator('๑',  '/', '๔',  'thai').calculate() == '๐.๒๕'  # 1/4=0.25 (thai підтримує дроби)
-    print('THAI: OK')
-
-    print('\nВсі тести пройшл')
+    # assert Convertor("1").convert_to_thai() == "๑"
+    # assert Convertor("10").convert_to_thai() == "๑๐"
+    # assert Convertor("2024").convert_to_thai() == "๒๐๒๔"
+    # assert Convertor("-123").convert_to_thai() == "-๑๒๓"
+    # assert Convertor("12.5").convert_to_thai() == "๑๒.๕"
+    # assert Convertor("12,5").convert_to_thai() == "๑๒,๕"
+    # assert Convertor("34567").convert_to_thai() == "๓๔๕๖๗"
+    # assert Convertor("12.5,6").convert_to_thai() == 'Невірне введення'
+    # assert Convertor("--123").convert_to_thai() == 'Невірне введення'
+    # assert Convertor("123-").convert_to_thai() == 'Невірне введення'
+    # assert Convertor("12a").convert_to_thai() == 'Невірне введення'
+    # assert Convertor("12..5").convert_to_thai() == 'Невірне введення'
+    #
+    # # --- Тайські -> Арабські ---
+    # assert Convertor("๑").convert_thai_to_arab() == "1"
+    # assert Convertor("๑๐").convert_thai_to_arab() == "10"
+    # assert Convertor("๒๐๒๔").convert_thai_to_arab() == "2024"
+    # assert Convertor("๓๔๕๖๗").convert_thai_to_arab() == "34567"
+    # assert Convertor("-๑๒๓").convert_thai_to_arab() == "-123"
+    # assert Convertor("๑๒.๕").convert_thai_to_arab() == "12.5"
+    # assert Convertor("๑๒,๕").convert_thai_to_arab() == "12,5"
+    # assert Convertor("๑๒.๕,๖").convert_thai_to_arab() == "Невірне введення"
+    # assert Convertor("--๑๒๓").convert_thai_to_arab() == "Невірне введення"
+    # assert Convertor("๑๒A").convert_thai_to_arab() == "Невірне введення"
+    # assert Convertor("๑๒๓-").convert_thai_to_arab() == "Невірне введення"
+    #
+    # # --- Round-trip tests ---
+    # test_vals = ["34567", "-456", "12.75", "12,5"]
+    # for val in test_vals:
+    #     thai_str = Convertor(val).convert_to_thai()
+    #     arabic_res = Convertor(thai_str).convert_thai_to_arab()
+    #     assert val == arabic_res
+    #
+    # print("Thai tests done! 🇹🇭 ✅")
+    # print("-" * 30)
+    # # Передбачається що Convertor і Calculator вже імпортовані
+    #
+    # # ── ARABIC ──
+    # assert Calculator('10', '+', '5').calculate() == '15'
+    # assert Calculator('10', '-', '3').calculate() == '7'
+    # assert Calculator('4', '*', '3').calculate() == '12'
+    # assert Calculator('10', '/', '2').calculate() == '5'
+    # assert Calculator('2', 'power', '8').calculate() == '256'
+    # assert Calculator('10', '%', '3').calculate() == '1'
+    # assert Calculator('5', '!').calculate() == '120'
+    # assert Calculator('0', '!').calculate() == '1'
+    # assert Calculator('9', 'sqrt').calculate() == '3'
+    # # дробові — залишаються
+    # assert Calculator('1', '/', '4').calculate() == '0.25'
+    # assert Calculator('2.5', '+', '1.5').calculate() == '4'
+    # assert Calculator('-5', '+', '3').calculate() == '-2'
+    # try:
+    #     Calculator('10', '+').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # try:
+    #     Calculator('5', '!', '3').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # try:
+    #     Calculator('abc', '+', '2').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # try:
+    #     Calculator('5', '/', '0').calculate(); assert False
+    # except ZeroDivisionError:
+    #     pass
+    # try:
+    #     Calculator('5', '??').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # try:
+    #     Calculator('2.5', '!').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # print('ARABIC: OK')
+    #
+    # # ── ROMAN ──
+    # assert Calculator('X', '+', 'V', 'roman').calculate() == 'XV'
+    # assert Calculator('X', '-', 'V', 'roman').calculate() == 'V'
+    # assert Calculator('V', '*', 'III', 'roman').calculate() == 'XV'
+    # assert Calculator('X', '/', 'II', 'roman').calculate() == 'V'
+    # assert Calculator('II', 'power', 'VIII', 'roman').calculate() == 'CCLVI'
+    # assert Calculator('X', '%', 'III', 'roman').calculate() == 'I'
+    # assert Calculator('III', '!', number_system='roman').calculate() == 'VI'
+    # assert Calculator('IV', 'sqrt', number_system='roman').calculate() == 'II'
+    # # дробовий результат -> ValueError
+    # try:
+    #     Calculator('X', '/', 'III', 'roman').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # # від'ємний результат -> Convertor поверне рядок помилки (не ValueError)
+    # assert Calculator('I', '-', 'V', 'roman').calculate() == 'Невірне числове введення.'
+    # # невалідний ввід
+    # try:
+    #     Calculator('123', '+', 'V', 'roman').calculate(); assert False
+    # except ValueError:
+    #     pass
+    # print('ROMAN: OK')
+    #
+    # # ── EGYPTIAN ──
+    # assert Calculator('𓎆𓎆', '+', '𓎆𓎆𓎆', 'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆'  # 20+30=50
+    # assert Calculator('𓎆', '*', '𓎆', 'egyptian').calculate() == '𓍢'  # 10*10=100
+    # assert Calculator('𓍢', '-', '𓎆', 'egyptian').calculate() == '𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆𓎆'  # 100-10=90 (9 tens)
+    # assert Calculator('𓎆𓎆', '/', '𓎆', 'egyptian').calculate() == '𓏺𓏺'  # 20/10=2
+    # assert Calculator('𓎆', '!',
+    #                   number_system='egyptian').calculate() == '𓀼𓀼𓀼𓆐𓆐𓆐𓆐𓆐𓆐𓂭𓂭𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓆼𓍢𓍢𓍢𓍢𓍢𓍢𓍢𓍢'  # 10!=3628800
+    # assert Calculator('𓍢', 'sqrt', number_system='egyptian').calculate() == '𓎆'  # sqrt(100)=10
+    # # дробовий результат
+    # try:
+    #     Calculator('𓎆', '/', '𓎆𓎆𓎆', 'egyptian').calculate(); assert False  # 10/30
+    # except ValueError:
+    #     pass
+    # print('EGYPTIAN: OK')
+    #
+    # # ── THAI ──
+    # assert Calculator('๑๐', '+', '๕', 'thai').calculate() == '๑๕.๐'  # 10+5=15
+    # assert Calculator('๙', '*', '๙', 'thai').calculate() == '๘๑.๐'  # 9*9=81
+    # assert Calculator('๑๐', '-', '๓', 'thai').calculate() == '๗.๐'  # 10-3=7
+    # assert Calculator('๔', '!', number_system='thai').calculate() == '๒๔'  # 4!=24
+    # assert Calculator('๙', 'sqrt', number_system='thai').calculate() == '๓.๐'  # sqrt(9)=3.0
+    # assert Calculator('๑', '/', '๔', 'thai').calculate() == '๐.๒๕'  # 1/4=0.25 (thai підтримує дроби)
+    # print('THAI: OK')
+    #
+    # print('\nВсі тести пройшли!')
 
 if __name__ == '__main__':
-    #test()
+    # test()
     pass

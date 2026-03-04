@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from models import db, User
 from flask_login import LoginManager, login_required, current_user
 from routes.auth_routes import auth_routes
@@ -124,7 +124,6 @@ def home():
 
 @app.route("/api/convert", methods=["POST"])
 def api_convert():
-    from flask import jsonify
     data = request.get_json()
     value = data.get("value", "")
     system_from = data.get("system_from", "")
@@ -145,6 +144,12 @@ def api_convert():
         }
 
         if system_from == system_to:
+            # FIX #3: Validate even when converting to same system
+            if system_from == "roman":
+                # Validate roman numeral
+                test_result = conv.convert_roman_to_arab()
+                if isinstance(test_result, str) and any(x in test_result for x in ['Невірне', 'Некоректне', 'Неправильний']):
+                    return jsonify({"result": None, "error": test_result})
             result = value
         elif system_from == "arabic":
             result = from_arabic[system_to](conv)
@@ -153,7 +158,14 @@ def api_convert():
         else:
             # Cross-system: chain through Arabic
             arabic_val = str(to_arabic[system_from](conv))
+            # Check if conversion failed
+            if any(x in arabic_val for x in ['Невірне', 'Некоректне', 'Неправильний']):
+                return jsonify({"result": None, "error": arabic_val})
             result = from_arabic[system_to](Convertor(arabic_val))
+
+        # Check if result contains error message
+        if isinstance(result, str) and any(x in result for x in ['Невірне', 'Некоректне', 'Неправильний', 'помилка', 'Помилка']):
+            return jsonify({"result": None, "error": result})
 
         return jsonify({"result": str(result), "error": None})
     except Exception as e:
@@ -209,4 +221,4 @@ def api_calculate():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -276,31 +276,31 @@
   }
 
   function tokensArabicToThai(numStr) {
-  // Handle decimal point separately
-  if (numStr.includes('.')) {
-    const [intPart, decPart] = numStr.split('.');
-    const intTokens = intPart.split('').map((d) => {
-      const digitVal = parseInt(d);
-      const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
-      return { symbol: thaiDigit, arabic: digitVal };
-    });
-    const decTokens = decPart.split('').map((d) => {
-      const digitVal = parseInt(d);
-      const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
-      return { symbol: thaiDigit, arabic: digitVal };
-    });
-    // Insert decimal point token
-    return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
-  }
+      // Handle decimal point separately
+      if (numStr.includes('.')) {
+        const [intPart, decPart] = numStr.split('.');
+        const intTokens = intPart.split('').map((d) => {
+          const digitVal = parseInt(d);
+          const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
+          return { symbol: thaiDigit, arabic: digitVal };
+        });
+        const decTokens = decPart.split('').map((d) => {
+          const digitVal = parseInt(d);
+          const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
+          return { symbol: thaiDigit, arabic: digitVal };
+        });
+        // Insert decimal point token
+        return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
+      }
 
-  // No decimal - original logic
-  const digits = numStr.replace('-','').split('');
-  return digits.map((d) => {
-    const digitVal = parseInt(d);
-    const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
-    return { symbol: thaiDigit, arabic: digitVal };
-  });
-}
+      // No decimal - original logic
+      const digits = numStr.replace('-','').split('');
+      return digits.map((d) => {
+        const digitVal = parseInt(d);
+        const thaiDigit = '๐๑๒๓๔๕๖๗๘๙'[digitVal];
+        return { symbol: thaiDigit, arabic: digitVal };
+      });
+  }
 
   function tokensEgyptianToArabic(str) {
     const tokens = [];
@@ -312,31 +312,31 @@
   }
 
   function tokensThaiToArabic(str) {
-  // Handle decimal point
-  if (str.includes('.')) {
-    const [intPart, decPart] = str.split('.');
-    const intDigits = [...intPart].filter(ch => THAI_DIGITS[ch] !== undefined);
-    const decDigits = [...decPart].filter(ch => THAI_DIGITS[ch] !== undefined);
+      // Handle decimal point
+      if (str.includes('.')) {
+        const [intPart, decPart] = str.split('.');
+        const intDigits = [...intPart].filter(ch => THAI_DIGITS[ch] !== undefined);
+        const decDigits = [...decPart].filter(ch => THAI_DIGITS[ch] !== undefined);
 
-    const intTokens = intDigits.map((d) => {
-      const val = THAI_DIGITS[d];
-      return { symbol: d, arabic: val };
-    });
-    const decTokens = decDigits.map((d) => {
-      const val = THAI_DIGITS[d];
-      return { symbol: d, arabic: val };
-    });
+        const intTokens = intDigits.map((d) => {
+          const val = THAI_DIGITS[d];
+          return { symbol: d, arabic: val };
+        });
+        const decTokens = decDigits.map((d) => {
+          const val = THAI_DIGITS[d];
+          return { symbol: d, arabic: val };
+        });
 
-    return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
+        return [...intTokens, { symbol: '.', arabic: null, isDecimal: true }, ...decTokens];
+      }
+
+      // No decimal - original logic
+      const digits = [...str].filter(ch => THAI_DIGITS[ch] !== undefined);
+      return digits.map((d) => {
+        const val = THAI_DIGITS[d];
+        return { symbol: d, arabic: val };
+      });
   }
-
-  // No decimal - original logic
-  const digits = [...str].filter(ch => THAI_DIGITS[ch] !== undefined);
-  return digits.map((d) => {
-    const val = THAI_DIGITS[d];
-    return { symbol: d, arabic: val };
-  });
-}
 
   function getArabicFromSource(fromSys, inputVal) {
     if (fromSys === 'arabic') return parseInt(inputVal);
