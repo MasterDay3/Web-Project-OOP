@@ -5,7 +5,7 @@ Arrays==0.0.5
 astroid==3.3.11
 asttokens==3.0.1
 attrs==25.4.0
-audioop-lts==0.2.2
+audioop-lts
 audioread==3.1.0
 black==26.1.0
 blinker==1.9.0
